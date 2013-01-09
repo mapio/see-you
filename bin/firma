@@ -1,0 +1,3 @@
+#!/bin/bash
+
+$EEG_HOME/.lec dl
