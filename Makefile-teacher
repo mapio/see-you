@@ -13,11 +13,9 @@ OUTPUTS = $(INPUTS:input-%.txt=output-%.txt)
 target: $(OUTPUTS) ;
 
 clean:
-	@rm -f *.o output-*.txt $(TARGET)
+	@rm -f *.o output-*.txt actual-*.txt diffs-*.txt $(TARGET)
 
 $(TARGET): $(OBJECTS)
-
-.PRECIOUS: actual-%.txt
 
 output-%.txt: input-%.txt args-%.txt $(TARGET)
 	./$(TARGET) $$(cat args-$*.txt) < $< > $@
