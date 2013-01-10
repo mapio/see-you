@@ -1,0 +1,23 @@
+CFLAGS = -Wall -pedantic -ansi
+CC = gcc
+
+SOURCES = $(wildcard *.c)
+OBJECTS = $(SOURCES:.c=.o)
+TARGET = soluzione
+INPUTS = $(wildcard input-*.txt)
+ARGS = $(wildcard args-*.txt)
+OUTPUTS = $(INPUTS:input-%.txt=output-%.txt)
+
+.PHONY: clean
+
+target: $(OUTPUTS) ;
+
+clean:
+	@rm -f *.o output-*.txt $(TARGET)
+
+$(TARGET): $(OBJECTS)
+
+.PRECIOUS: actual-%.txt
+
+output-%.txt: input-%.txt args-%.txt $(TARGET)
+	./$(TARGET) $$(cat args-$*.txt) < $< > $@
