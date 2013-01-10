@@ -1,0 +1,3 @@
+#!/bin/bash
+
+python ../../server/eegat/templates/client.py _t bundle '(bin.*|.*.txt|Makefile)' >> ../../server/conf.py

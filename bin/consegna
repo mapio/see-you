@@ -1,3 +1,3 @@
 #!/bin/bash
 
-$EEG_HOME/.lec ul $EEG_HOME 'esercizio-[0-9]+/(.*\.[ch]|diffs-.*\.txt)$'
+$EEG_HOME/.eeg ul 'esercizio-[0-9]+/(.*\.[ch]|diffs-.*\.txt)$'
