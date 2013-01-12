@@ -1,21 +1,28 @@
 CFLAGS = -Wall -pedantic -ansi
 CC = gcc
 
-SOURCES = $(wildcard *.c)
-OBJECTS = $(SOURCES:.c=.o)
-TARGET = soluzione
-INPUTS = $(wildcard input-*.txt)
-ARGS = $(wildcard args-*.txt)
-OUTPUTS = $(INPUTS:input-%.txt=output-%.txt)
+OUTPUTS = $(INPUTS:input-%.txt=diffs-%.txt)
+EXERCISES = $(wildcard bundle/esercizio-*/.)
 
-.PHONY: clean
+.PHONY: clean tclean outs evals $(EXERCISES)
 
-target: $(OUTPUTS) ;
+evals: $(EXERCISES) ;
+
+$(EXERCISES):
+	$(MAKE) -C $@ eval.txt
 
 clean:
-	@rm -f *.o output-*.txt actual-*.txt diffs-*.txt $(TARGET)
+	for e in $(EXERCISES); do $(MAKE) -C $$e tclean; done
 
-$(TARGET): $(OBJECTS)
+tclean: pulisci
+	@rm -f output-*.txt eval.txt
+
+outs: $(OUTPUTS) ;
+
+.PRECIOUS: output-%.txt
 
 output-%.txt: input-%.txt args-%.txt $(TARGET)
 	./$(TARGET) $$(cat args-$*.txt) < $< > $@
+
+eval.txt: $(DIFFS)
+	wc -l $(DIFFS) > eval.txt

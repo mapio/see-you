@@ -5,25 +5,23 @@ SOURCES = $(wildcard *.c)
 OBJECTS = $(SOURCES:.c=.o)
 TARGET = soluzione
 INPUTS = $(wildcard input-*.txt)
-OUTPUTS = $(wildcard output-*.txt)
-ARGS = $(wildcard args-*.txt)
 DIFFS = $(INPUTS:input-%.txt=diffs-%.txt)
 
-compile = $(CC) $(CFLAGS) -o $@ -c $<
-link = $(CC) $(LDFLAGS) $^ -o $@
+compile = $(CC) $(CFLAGS) -c -o $@ $<
+link = $(CC) $^ -o $@
 test = ./soluzione $$\(cat args-$*.txt\) \< $< \> $@
 
 red := bash -c 'echo -ne "\033[31m"'
 blue := bash -c 'echo -ne "\033[34m"'
 reset := bash -c 'echo -ne "\033[0m"'
 
-.PHONY: clean
+.PHONY: all test pulisci
 
-target: $(TARGET) ;
+all: $(TARGET) ;
 
 test: $(DIFFS) ;
 
-clean:
+pulisci:
 	@rm -f *.o .compile.* .link.* actual-*.txt diffs-*.txt $(TARGET)
 
 %.o: %.c
