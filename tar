@@ -3,4 +3,4 @@
 export MAKEFILES="$(pwd)/Makefile-student $(pwd)/Makefile-teacher"
 make clean
 make evals
-python ../../server/eegat/templates/client.py _t bundle '(bin.*|(input|output|args)-[0-9]*.txt|Makefile)' >> ../../server/conf.py
+python ../../server/eegat/templates/client.py _t bundle '(bin/.*|Makefile|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)' >/dev/null #>> ../../server/conf.py
