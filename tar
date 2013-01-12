@@ -1,3 +1,6 @@
 #!/bin/bash
 
-python ../../server/eegat/templates/client.py _t bundle '(bin.*|.*.txt|Makefile)' >> ../../server/conf.py
+export MAKEFILES="$(pwd)/Makefile-student $(pwd)/Makefile-teacher"
+make clean
+make evals
+python ../../server/eegat/templates/client.py _t bundle '(bin.*|(input|output|args)-[0-9]*.txt|Makefile)' >> ../../server/conf.py
