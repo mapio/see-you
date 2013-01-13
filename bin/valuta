@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export MAKEFILES="$(pwd)/Makefile-student $(pwd)/Makefile-teacher"
+make revals >/dev/null
+grep . esercizio-*/eval.txt

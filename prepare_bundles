@@ -1,9 +1,72 @@
 #!/bin/bash
 
-( export MAKEFILES="$(pwd)/Makefile-student $(pwd)/Makefile-teacher"
-make clean
-make evals ) >/dev/null
-echo "Adding to server download bundle..."
-python ../../server/eegat/templates/client.py _t bundle '(bin/.*|Makefile|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)' >/dev/null >> ../../server/conf.py
-echo "Adding to grader evaluation bundle..."
-python ../../server/eegat/templates/client.py _t bundle 'esercizio-[0-9]+/(input|output|args)-.+\.txt' >> ../../grader/conf.py
+exercises=../../Extra/exercises/
+server_conf=../../server/conf.py
+grader_conf=../../grader/conf.py
+
+export PYTHONPATH=../../server/eegat/templates/:.
+
+echocol() {
+	echo -ne "\033[31m"
+	echo $1
+	echo -ne "\033[0m"
+}
+
+echocol "Preparing bundle directoroy..."
+
+rm -rf bundle
+mkdir bundle
+cp -rv $exercises/esercizio-* bundle
+
+echocol "Making test files..."
+
+. ./set_makefiles
+make -wC bundle revals
+rm -vf bundle/*/*.[ch]
+
+echocol "Preparing server configuration..."
+
+ln -s $(pwd)/LEGGIMI.txt bundle/LEGGIMI.txt
+ln -s $(pwd)/Makefile-student bundle/Makefile
+mkdir bundle/bin
+ln -s $(pwd)/bin/{consegna,identifica} bundle/bin
+cat > $server_conf <<EOF
+DEBUG = True
+TESTING = True
+SESSION_COOKIE_HTTPONLY = False
+SECRET_KEY = 'a very long secret'
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+
+EEG_HOME = '/tmp/eeg'
+
+UPLOAD_DIR = '../uploads'
+
+REGISTERED_UIDS = """
+123	First Tests
+456	Second Test
+"""
+
+ENVIRONMENT_SETUP = """
+export PATH="{0}/bin":\$PATH
+export MAKEFILES="{0}/Makefile"
+"""
+
+DOWNLOAD_BUNDLE = """
+EOF
+python -m client _t bundle '^(bin/.*|Makefile|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$' >/dev/null >> ../../server/conf.py
+echo '"""' >> $server_conf
+
+echocol "Preparing grader configuration..."
+
+rm -rf bundle/{Makefile,bin,LEGGIMI.txt}
+ln -s $(pwd)/Makefile-student bundle/Makefile-student
+ln -s $(pwd)/Makefile-teacher bundle/Makefile-teacher
+ln -s $(pwd)/bin/valuta bundle/valuta
+cat > $grader_conf <<EOF
+EVAL_COMMAND = './valuta'
+
+EVAL_BUNDLE = """
+EOF
+
+python -m client _t bundle '^(valuta|Makefile.*|(esercizio-[0-9]+/(input|output|args)-.+\.txt))$' >> $grader_conf
+echo '"""' >> $grader_conf
