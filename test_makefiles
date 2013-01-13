@@ -14,9 +14,7 @@ echo -e '#include <stdio.h>\nint main( void ) { printf( "AB" ); return 0; }' > s
 echo
 
 echo "TRUNCATION"
-export max_output=1
-make -e pulisci test
-unset max_output
+make -e pulisci test max_output=1
 echo
 
 echo "ERROR"
