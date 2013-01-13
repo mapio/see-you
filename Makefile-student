@@ -15,9 +15,9 @@ red := bash -c 'echo -ne "\033[31m"'
 blue := bash -c 'echo -ne "\033[34m"'
 reset := bash -c 'echo -ne "\033[0m"'
 
-.PHONY: all test pulisci
+.PHONY: compila test pulisci
 
-all: $(TARGET) ;
+compila: $(TARGET) ;
 
 test: $(DIFFS) ;
 
