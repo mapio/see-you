@@ -10,6 +10,7 @@ DIFFS = $(INPUTS:input-%.txt=diffs-%.txt)
 compile = $(CC) $(CFLAGS) -c -o $@ $<
 link = $(CC) $^ -o $@
 test = ./soluzione $$\(cat args-$*.txt\) \< $< \> $@
+max_output = 1024 * 1024
 
 red := bash -c 'echo -ne "\033[31m"'
 blue := bash -c 'echo -ne "\033[34m"'
@@ -25,7 +26,7 @@ pulisci:
 	@rm -f *.o .compile-* .link-* .exec-* actual-*.txt diffs-*.txt $(TARGET)
 
 %.o: %.c
-	@rm -f .compile-$@
+	@rm -f .compile-$*
 	@echo $(compile)
 	@$(compile) -fmessage-length=0 2> .compile-$* || true
 	@if grep -q warning: .compile-$*; then\
@@ -54,10 +55,10 @@ $(TARGET): $(OBJECTS)
 .PRECIOUS: actual-%.txt
 
 actual-%.txt: input-%.txt args-%.txt $(TARGET)
-	@rm -f .exec-$@ $@
+	@rm -f .exec-$* $@
 	@echo $(test)
-	@if ! bash -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< | head -n $(( 1024*1024 )) > $@ 2> /dev/null" > /dev/null 2> .exec-$@; then\
-		if grep -qi "limit exceeded" .exec-$@; then\
+	@if ! bash -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< | head -c $$(( $(max_output) )) > $@ 2> /dev/null" > /dev/null 2> .exec-$*; then\
+		if grep -qi "limit exceeded" .exec-$*; then\
 			$(red);\
 			echo execution timeout;\
 			$(reset);\
