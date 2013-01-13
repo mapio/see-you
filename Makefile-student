@@ -22,43 +22,53 @@ compila: $(TARGET) ;
 test: $(DIFFS) ;
 
 pulisci:
-	@rm -f *.o .compile.* .link.* actual-*.txt diffs-*.txt $(TARGET)
+	@rm -f *.o .compile-* .link-* .exec-* actual-*.txt diffs-*.txt $(TARGET)
 
 %.o: %.c
-	@rm -f .compile.$@
+	@rm -f .compile-$@
 	@echo $(compile)
-	@$(compile) -fmessage-length=0 2> .compile.$* || true
-	@if grep -q warning: .compile.$*; then\
+	@$(compile) -fmessage-length=0 2> .compile-$* || true
+	@if grep -q warning: .compile-$*; then\
 		$(red);\
-		grep ': warning:' .compile.$*;\
+		grep ': warning:' .compile-$*;\
 		$(reset);\
-		fi
-	@if grep -q error: .compile.$*; then\
+	fi
+	@if grep -q error: .compile-$*; then\
 		$(blue);\
-		grep ': error:' .compile.$*;\
+		grep ': error:' .compile-$*;\
 		$(reset);\
-		exit 1; fi
+		exit 1;\
+	fi
 
 $(TARGET): $(OBJECTS)
-	@rm -f .link
+	@rm -f .link-$@
 	@echo $(link)
-	@$(link) -fmessage-length=0 2> .link.$@ || true
-	@if grep -q "1 exit status" .link.$@; then\
+	@$(link) -fmessage-length=0 2> .link-$@ || true
+	@if grep -q "1 exit status" .link-$@; then\
 		$(blue);\
-		cat .link.$@;\
+		cat .link-$@;\
 		$(reset);\
-		exit 1; fi
+		exit 1;\
+	fi
 
 .PRECIOUS: actual-%.txt
 
 actual-%.txt: input-%.txt args-%.txt $(TARGET)
+	@rm -f .exec-$@ $@
 	@echo $(test)
-	@if ! ./$(TARGET) $$(cat args-$*.txt) < $< > $@; then\
-		$(blue);\
-		echo non-zero return value;\
+	@if ! bash -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< | head -n $(( 1024*1024 )) > $@ 2> /dev/null" > /dev/null 2> .exec-$@; then\
+		if grep -qi "limit exceeded" .exec-$@; then\
+			$(red);\
+			echo execution timeout;\
+			$(reset);\
+		else\
+			$(blue);\
+			echo non-zero return value;\
+			$(reset);\
+		fi;\
 		rm $@;\
-		$(reset);\
-		exit 1; fi
+		exit 1;\
+	fi
 
 diffs-%.txt: output-%.txt actual-%.txt
 	@echo diff -ub $^ \> $@
@@ -67,4 +77,4 @@ diffs-%.txt: output-%.txt actual-%.txt
 	 	$(blue);\
 		cat $@;\
 		$(reset);\
-		fi
+	fi

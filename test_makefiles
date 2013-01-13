@@ -1,0 +1,30 @@
+#!/bin/bash
+
+tempdir=$(mktemp -d mtdXXXXXXXXX) || exit 1
+
+cd $tempdir
+
+export MAKEFILES=../Makefile-student
+
+touch args-0.txt input-0.txt
+echo 1 > output-0.txt
+
+echo "OK"
+echo -e '#include <stdio.h>\nint main( void ) { printf( "1" ); return 0; }' > soluzione.c; make pulisci test
+echo
+
+echo "ERROR"
+echo 'int main( void ) { return 0; }' > soluzione.c; make pulisci test
+echo
+
+echo "RETVAL"
+echo 'int main( void ) { return 1; }' > soluzione.c; make pulisci test
+echo
+
+echo "TIMEOUT"
+echo 'int main( void ) { for (;;); return 0; }' > soluzione.c; make pulisci test
+echo
+
+cd ..
+
+rm -rf $tempdir
