@@ -2,4 +2,7 @@
 
 export MAKEFILES="$(pwd)/Makefile-student $(pwd)/Makefile-teacher"
 make revals >/dev/null
-grep . esercizio-*/eval.txt
+for es in ./esercizio-*/eval.txt; do
+	n=$(echo $es | sed 's|.*-\(.*\)/.*|\1|' )
+	sed -n "s| *\(.*\) diffs-\(.*\).txt|"$n" \2 \1|p" < $es
+done
