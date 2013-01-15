@@ -17,7 +17,7 @@ echocol "Preparing bundle directoroy..."
 
 rm -rf bundle
 mkdir bundle
-n=0
+n=1
 for e in $exercises; do
 	cp -rv $exercise_dir/$e bundle/esercizio-$n
 	n=$(( n + 1 ))
@@ -44,7 +44,7 @@ MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 
 EEG_HOME = '/tmp/eeg'
 
-UPLOAD_DIR = '../uploads'
+UPLOAD_DIR = '../Extra/uploads'
 
 REGISTERED_UIDS = """
 123	First Tests
