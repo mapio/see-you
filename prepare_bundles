@@ -1,6 +1,7 @@
 #!/bin/bash
 
-exercises=../../Extra/exercises/
+exercise_dir=/Users/santini/Documents/SCM/teaching/labprog.temi
+exercises='salve_mondo'
 server_conf=../../server/conf.py
 grader_conf=../../grader/conf.py
 
@@ -16,13 +17,17 @@ echocol "Preparing bundle directoroy..."
 
 rm -rf bundle
 mkdir bundle
-cp -rv $exercises/esercizio-* bundle
+n=0
+for e in $exercises; do
+	cp -rv $exercise_dir/$e bundle/esercizio-$n
+	n=$(( n + 1 ))
+done
 
 echocol "Making test files..."
 
 . ./set_makefiles
 make -wC bundle revals
-rm -vf bundle/*/*.[ch]
+rm -vf bundle/*/{soluzione*,*.[ch]}
 
 echocol "Preparing server configuration..."
 
