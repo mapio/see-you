@@ -36,6 +36,8 @@ SESSION_COOKIE_HTTPONLY = False
 SECRET_KEY = 'a very long secret'
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 
+LANG = 'it'
+
 EEG_HOME = '/tmp/eeg'
 
 UPLOAD_DIR = '../Extra/uploads'
