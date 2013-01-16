@@ -7,11 +7,7 @@ grader_conf=../../grader/conf.py
 
 export PYTHONPATH=../../server/eegat/templates/:.
 
-echocol() {
-	echo -ne "\033[31m"
-	echo $1
-	echo -ne "\033[0m"
-}
+echocol() { echo -e "\033[31m$@\033[0m"; }
 
 echocol "Preparing bundle directoroy..."
 
