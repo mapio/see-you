@@ -36,8 +36,6 @@ ln -s $(pwd)/Makefile-student bundle/Makefile
 mkdir bundle/bin
 ln -s $(pwd)/bin/{consegna,identifica} bundle/bin
 cat > $server_conf <<EOF
-DEBUG = True
-TESTING = True
 SESSION_COOKIE_HTTPONLY = False
 SECRET_KEY = 'a very long secret'
 MAX_CONTENT_LENGTH = 16 * 1024 * 1024
@@ -46,10 +44,11 @@ EEG_HOME = '/tmp/eeg'
 
 UPLOAD_DIR = '../Extra/uploads'
 
-REGISTERED_UIDS = """
+_registered_uids = """
 123	First Tests
 456	Second Test
 """
+REGISTERED_UIDS = dict( _.split( '\t' ) for _ in _registered_uids.splitlines() if _ )
 
 ENVIRONMENT_SETUP = """
 export PATH="{0}/bin":\$PATH
