@@ -1,0 +1,60 @@
+#!/bin/bash
+
+echocol() { echo -e "\033[31m$@\033[0m"; }
+
+srcdir=$1
+
+if [ ! -d $srcdir ]; then
+	echo "Specify the source dir"
+	exit 1
+fi
+
+export PYTHONPATH=/Users/santini/x/tristo-mietitore
+export SUPPORT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/support"
+export MAKEFILES="$SUPPORT/Makefile-student $SUPPORT/Makefile-teacher"
+
+tempdir=$(mktemp -d /tmp/vulcano-XXXXXXXXX) || exit 1
+
+echocol "Preparing tm tar directoroy..."
+
+mkdir $tempdir/bundle
+n=1
+echo -n "Adding exercises:  "
+for e in $srcdir/exercises/*; do
+	echo -n "$(basename $e) "
+	dst=$tempdir/bundle/esercizio-$n
+	mkdir $dst
+	cp $e/{*.[ch],*.txt} $dst
+	n=$(( n + 1 ))
+done
+echo
+
+echocol "Making test files..."
+
+make -wC $tempdir/bundle revals
+rm -f $tempdir/bundle/*/{soluzione*,*.[ch]}
+
+echocol "Adding readme and bins..."
+
+cp $SUPPORT/LEGGIMI.txt $tempdir/bundle/LEGGIMI.txt
+cp $SUPPORT/Makefile-student $tempdir/bundle/Makefile
+mkdir $tempdir/bundle/bin
+cp $SUPPORT/bin/{consegna,identifica} $tempdir/bundle/bin
+
+echocol "Generating tm conf file..."
+
+filter='^(bin/.*|Makefile|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$'
+python -m tm.mkconf -vf "$filter" tm_conf.py $srcdir/base-tm.py $tempdir/bundle $srcdir/registered_uids.tsv
+
+echocol "Generating minosse configuration..."
+
+rm -rf $tempdir/bundle/{Makefile,bin,LEGGIMI.txt}
+cp $SUPPORT/Makefile-student $tempdir/bundle/Makefile-student
+cp $SUPPORT/Makefile-teacher $tempdir/bundle/Makefile-teacher
+cp $SUPPORT/bin/valuta $tempdir/bundle/valuta
+
+filter='^(valuta|Makefile.*|(esercizio-[0-9]+/(input|output|args)-.+\.txt))$'
+python -m tm.mkconf -vf "$filter" minosse_conf.py $srcdir/base-minosse.py $tempdir/bundle
+
+
+rm -rf $tempdir
