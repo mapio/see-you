@@ -1,11 +1,5 @@
 #!/bin/bash
 
-tempdir=$(mktemp -d mtdXXXXXXXXX) || exit 1
-
-cd $tempdir
-
-export MAKEFILES=../Makefile-student
-
 assert() {
 	echo -ne "\033[31m$1...\033[0m "
 	rm -f err
@@ -48,6 +42,10 @@ assert() {
 	fi
 }
 
+export MAKEFILES=$(pwd)/support/Makefile-student
+
+tempdir=$(mktemp -d /tmp/vulcano-XXXXXXXXX) || exit 1
+cd $tempdir
 
 touch args-0.txt input-0.txt
 echo -n AB > output-0.txt
