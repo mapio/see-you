@@ -6,28 +6,64 @@ cd $tempdir
 
 export MAKEFILES=../Makefile-student
 
+assert() {
+	echo -ne "\033[31m$1...\033[0m "
+	rm -f err
+	if make -e pulisci test $2 exit_on_fail=false > /dev/null 2> err; then
+		if [ -z "$4" ] || grep -q "$4" err; then
+			res="$(diff output-0.txt actual-0.txt 2>/dev/null | grep -E '^(<|>)')"
+			if [ "$res" == "$3" ]; then
+				echo -n OK
+			else
+				echo -n FAIL, stdout: "$res"
+			fi
+		else
+			echo -n FAIL, stderr: "$(cat err)"
+		fi
+	else
+		echo -n 'FAIL [make failed]'
+	fi
+
+	if [ -z "$5" ]; then
+
+		echo -ne " \033[31m(f)\033[0m "
+		rm -f err
+		if make -e pulisci test $2 > /dev/null 2> err; then
+			echo 'NOT FAILED [make]'
+		else
+			if [ -z "$4" ] ||  grep -q "$4" err; then
+				res="$(diff output-0.txt actual-0.txt 2>/dev/null | grep -E '^(<|>)')"
+				if [ "$res" == "$3" ]; then
+					echo OK.
+				else
+					echo FAIL, stdout: "$res".
+				fi
+			else
+				echo FAIL, stderr: "$(cat err)".
+			fi
+		fi
+
+	else
+		echo .
+	fi
+}
+
+
 touch args-0.txt input-0.txt
-echo AB > output-0.txt
+echo -n AB > output-0.txt
+echo -e '#include <stdio.h>\nint main( void ) { printf( "AB" ); return 0; }' > soluzione.c
 
-echo "OK"
-echo -e '#include <stdio.h>\nint main( void ) { printf( "AB" ); return 0; }' > soluzione.c; make pulisci test
-echo
+assert "No error" "" "" "" NF
+assert "Truncation" "max_output=1" "< AB"$'\n'"> A"
 
-echo "TRUNCATION"
-make -e pulisci test max_output=1
-echo
+echo 'int main( void ) { return 0; }' > soluzione.c
+assert "Diff" "" "< AB"
 
-echo "ERROR"
-echo 'int main( void ) { return 0; }' > soluzione.c; make pulisci test
-echo
+echo 'int main( void ) { return 1; }' > soluzione.c
+assert "Retval" "" "" "non-zero return value"
 
-echo "RETVAL"
-echo 'int main( void ) { return 1; }' > soluzione.c; make pulisci test
-echo
-
-echo "TIMEOUT"
-echo 'int main( void ) { for (;;); return 0; }' > soluzione.c; make pulisci test
-echo
+echo 'int main( void ) { for (;;); return 0; }' > soluzione.c
+assert "Timeout" "" "" "execution timeout"
 
 cd ..
 
