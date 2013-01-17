@@ -10,7 +10,9 @@ DIFFS = $(INPUTS:input-%.txt=diffs-%.txt)
 compile = $(CC) $(CFLAGS) -c -o $@ $<
 link = $(CC) $^ -o $@
 test = ./soluzione $$\(cat args-$*.txt\) \< $< \> $@
+
 max_output = 1024 * 1024
+exit_on_fail = true
 
 red := bash -c 'echo -ne "\033[31m"'
 blue := bash -c 'echo -ne "\033[34m"'
@@ -57,19 +59,20 @@ $(TARGET): $(OBJECTS)
 actual-%.txt: input-%.txt args-%.txt $(TARGET)
 	@rm -f .exec-$* $@
 	@echo $(test)
-	@if ! bash -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< | head -c $$(( $(max_output) )) > $@ 2> /dev/null" > /dev/null 2> .exec-$*; then\
+	@if ! bash -c "set -o pipefail; ( ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< ) 2> .exec-$* | head -c $$(( $(max_output) )) > $@"; then\
 		if grep -qi "limit exceeded" .exec-$*; then\
 			$(red);\
-			echo execution timeout;\
+			echo execution timeout 1>&2;\
 			$(reset);\
 		else\
 			$(blue);\
-			echo non-zero return value;\
+			echo non-zero return value 1>&2;\
 			$(reset);\
 		fi;\
 		rm $@;\
-		exit 1;\
+		if $(exit_on_fail); then exit 1; fi;\
 	fi
+
 
 diffs-%.txt: output-%.txt actual-%.txt
 	@echo diff -ub $^ \> $@
@@ -78,4 +81,5 @@ diffs-%.txt: output-%.txt actual-%.txt
 	 	$(blue);\
 		cat $@;\
 		$(reset);\
+		if $(exit_on_fail); then exit 1; fi;\
 	fi
