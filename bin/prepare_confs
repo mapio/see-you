@@ -9,7 +9,7 @@ if [ ! -d $srcdir ]; then
 	exit 1
 fi
 
-export PYTHONPATH=/Users/santini/x/tristo-mietitore
+export PYTHONPATH=/Users/santini/Documents/SCM/programming/eeg/tristo-mietitore
 export SUPPORT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/support"
 export MAKEFILES="$SUPPORT/Makefile-student $SUPPORT/Makefile-teacher"
 

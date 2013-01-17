@@ -1,3 +1,3 @@
 #!/bin/bash
 
-${0%/bin/identifica}/.eeg id
+${0%/bin/identifica}/.tm id
