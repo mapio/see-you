@@ -59,8 +59,8 @@ $(TARGET): $(OBJECTS)
 actual-%.txt: input-%.txt args-%.txt $(TARGET)
 	@rm -f .exec-$* $@
 	@echo $(test)
-	@if ! bash -c "set -o pipefail; ( ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< ) 2> .exec-$* | head -c $$(( $(max_output) )) > $@"; then\
-		if grep -qi "limit exceeded" .exec-$*; then\
+	@if ! bash -o pipefail -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< | head -c $$(( $(max_output) )) > $@" 2> .exec-$*; then\
+		if grep -qi "bash: line 1:" .exec-$*; then\
 			$(red);\
 			echo execution timeout 1>&2;\
 			$(reset);\
