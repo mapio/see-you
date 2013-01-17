@@ -2,73 +2,72 @@
 
 exercise_dir=/Users/santini/Documents/SCM/teaching/labprog.temi
 exercises='salve_mondo'
-server_conf=../../server/conf.py
-grader_conf=../../grader/conf.py
 
-export PYTHONPATH=../../server/eegat/templates/:.
+export PYTHONPATH=/Users/santini/x/tristo-mietitore
+
+tempdir=$(mktemp -d /tmp/vulcano-XXXXXXXXX) || exit 1
 
 echocol() { echo -e "\033[31m$@\033[0m"; }
 
-echocol "Preparing bundle directoroy..."
+echocol "Preparing base conf files..."
 
-rm -rf bundle
-mkdir bundle
+cat > $tempdir/uids.tsv <<EOF
+123	First Name
+456	Second Name
+EOF
+
+cat > $tempdir/vulcano-base.py <<EOF
+SECRET_KEY = 'a very long secret'
+MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+LANG = 'it'
+EEG_HOME = '/tmp/vulcano_test/home'
+UPLOAD_DIR = '/tmp/vulcano_test/uploads'
+ENVIRONMENT_SETUP = """
+export PATH="{0}/bin":\$PATH
+export MAKEFILES="{0}/Makefile"
+"""
+EOF
+
+cat > $tempdir/minosse-base.py <<EOF
+EVAL_COMMAND = './valuta'
+EOF
+
+echocol "Preparing tm tar directoroy..."
+
+mkdir $tempdir/bundle
 n=1
 for e in $exercises; do
-	cp -rv $exercise_dir/$e bundle/esercizio-$n
+	cp -r $exercise_dir/$e $tempdir/bundle/esercizio-$n
 	n=$(( n + 1 ))
 done
 
 echocol "Making test files..."
 
 . ./set_makefiles
-make -wC bundle revals
-rm -vf bundle/*/{soluzione*,*.[ch]}
+make -wC $tempdir/bundle revals
+rm -f $tempdir/bundle/*/{soluzione*,*.[ch]}
 
-echocol "Preparing server configuration..."
+echocol "Adding readme and bins..."
 
-ln -s $(pwd)/LEGGIMI.txt bundle/LEGGIMI.txt
-ln -s $(pwd)/Makefile-student bundle/Makefile
-mkdir bundle/bin
-ln -s $(pwd)/bin/{consegna,identifica} bundle/bin
-cat > $server_conf <<EOF
-SESSION_COOKIE_HTTPONLY = False
-SECRET_KEY = 'a very long secret'
-MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+cp ./LEGGIMI.txt $tempdir/bundle/LEGGIMI.txt
+cp ./Makefile-student $tempdir/bundle/Makefile
+mkdir $tempdir/bundle/bin
+cp ./bin/{consegna,identifica} $tempdir/bundle/bin
 
-LANG = 'it'
+echocol "Generating tm conf file..."
 
-EEG_HOME = '/tmp/eeg'
+filter='^(bin/.*|Makefile|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$'
+python -m tm.mkconf -vf "$filter" tm_conf.py $tempdir/vulcano-base.py $tempdir/bundle $tempdir/uids.tsv
 
-UPLOAD_DIR = '../Extra/uploads'
+echocol "Generating minosse configuration..."
 
-_registered_uids = """
-123	First Tests
-456	Second Test
-"""
-REGISTERED_UIDS = dict( _.split( '\t' ) for _ in _registered_uids.splitlines() if _ )
+rm -rf $tempdir/bundle/{Makefile,bin,LEGGIMI.txt}
+cp ./Makefile-student $tempdir/bundle/Makefile-student
+cp ./Makefile-teacher $tempdir/bundle/Makefile-teacher
+cp ./bin/valuta $tempdir/bundle/valuta
 
-ENVIRONMENT_SETUP = """
-export PATH="{0}/bin":\$PATH
-export MAKEFILES="{0}/Makefile"
-"""
+filter='^(valuta|Makefile.*|(esercizio-[0-9]+/(input|output|args)-.+\.txt))$'
+python -m tm.mkconf -vf "$filter" minosse_conf.py $tempdir/minosse-base.py $tempdir/bundle
 
-DOWNLOAD_BUNDLE = """
-EOF
-python -m client _t bundle '^(bin/.*|Makefile|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$' >/dev/null >> ../../server/conf.py
-echo '"""' >> $server_conf
 
-echocol "Preparing grader configuration..."
-
-rm -rf bundle/{Makefile,bin,LEGGIMI.txt}
-ln -s $(pwd)/Makefile-student bundle/Makefile-student
-ln -s $(pwd)/Makefile-teacher bundle/Makefile-teacher
-ln -s $(pwd)/bin/valuta bundle/valuta
-cat > $grader_conf <<EOF
-EVAL_COMMAND = './valuta'
-
-EVAL_BUNDLE = """
-EOF
-
-python -m client _t bundle '^(valuta|Makefile.*|(esercizio-[0-9]+/(input|output|args)-.+\.txt))$' >> $grader_conf
-echo '"""' >> $grader_conf
+rm -rf $tempdir
