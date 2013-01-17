@@ -13,7 +13,7 @@ export PYTHONPATH=/Users/santini/Documents/SCM/programming/eeg/tristo-mietitore
 export SUPPORT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/support"
 export MAKEFILES="$SUPPORT/Makefile-student $SUPPORT/Makefile-teacher"
 
-tempdir=$(mktemp -d /tmp/vulcano-XXXXXXXXX) || exit 1
+tempdir=$(mktemp -d /tmp/vulcan-XXXXXXXXX) || exit 1
 
 echocol "Preparing tm tar directoroy..."
 
@@ -54,7 +54,7 @@ cp $SUPPORT/Makefile-teacher $tempdir/bundle/Makefile-teacher
 cp $SUPPORT/bin/valuta $tempdir/bundle/valuta
 
 filter='^(valuta|Makefile.*|(esercizio-[0-9]+/(input|output|args)-.+\.txt))$'
-python -m tm.mkconf -vf "$filter" minosse_conf.py $srcdir/base-minosse.py $tempdir/bundle
+python -m tm.mkconf -vf "$filter" minos_conf.py $srcdir/base-minos.py $tempdir/bundle
 
 
 rm -rf $tempdir
