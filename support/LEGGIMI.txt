@@ -1,6 +1,6 @@
 Questo file contiene una breve guida per gli impazienti.
 
-Istruzioni più dettagliate, di cui si raccomanda a tutti la lettura,
+Istruzioni piÃ¹ dettagliate, di cui si raccomanda a tutti la lettura,
 possono essere accedute invocando il browser digitando nel terminale il
 comando
 
@@ -9,7 +9,7 @@ comando
 Gli impazienti pososno viceversa seguire queste brevi indicazioni:
 
 	0) invocate il comando 'firma' seguito dal vostro numero di
-	   matricola, ad esempio, se il vostro numero di matricola è
+	   matricola, ad esempio, se il vostro numero di matricola Ã¨
 	   123456, date il comando
 
 	   	firma 123456
@@ -18,7 +18,7 @@ Gli impazienti pososno viceversa seguire queste brevi indicazioni:
 
 	2) leggete la traccia dell'esercizio 'Testo.txt',
 
-	3) implementate la vostra soluzione in uno (o più) file (salvati nella
+	3) implementate la vostra soluzione in uno (o piÃ¹) file (salvati nella
        directory corrente), avendo cura di definire una ed una sola funzione
        di nome main. Se necessario potete accedere tramite il browser alla
        documentazione on-line disponibile all'indirizzo
