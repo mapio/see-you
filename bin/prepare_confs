@@ -47,8 +47,15 @@ cp $SUPPORT/bin/{consegna,identifica} $tempdir/bundle/bin
 
 echocol "Generating tm conf file..."
 
+cp "$srcdir/base-tm.py" $tempdir/base-tm.py
+cat >> $tempdir/base-tm.py <<EOF
+ENVIRONMENT_SETUP = """
+export PATH="{0}/bin":\$PATH
+export MAKEFILES="{0}/Makefile"
+"""
+EOF
 filter='^(bin/.*|Makefile|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$'
-python -m tm.mkconf -vf "$filter" tm_conf.py "$srcdir/base-tm.py" $tempdir/bundle "$srcdir/registered_uids.tsv"
+python -m tm.mkconf -vf "$filter" tm-conf.py $tempdir/base-tm.py $tempdir/bundle "$srcdir/registered_uids.tsv"
 
 echocol "Generating minosse configuration..."
 
@@ -57,7 +64,11 @@ cp $SUPPORT/Makefile-student $tempdir/bundle/Makefile-student
 cp $SUPPORT/Makefile-teacher $tempdir/bundle/Makefile-teacher
 cp $SUPPORT/bin/valuta $tempdir/bundle/valuta
 
+cp "$srcdir/base-minos.py" $tempdir/base-minos.py
+cat >> $tempdir/base-minos.py <<EOF
+EVAL_COMMAND = './valuta'
+EOF
 filter='^(valuta|Makefile.*|(esercizio-[0-9]+/(input|output|args)-.+\.txt))$'
-python -m tm.mkconf -vf "$filter" minos_conf.py "$srcdir/base-minos.py" $tempdir/bundle
+python -m tm.mkconf -vf "$filter" minos-conf.py  $tempdir/base-minos.py $tempdir/bundle
 
 rm -rf $tempdir

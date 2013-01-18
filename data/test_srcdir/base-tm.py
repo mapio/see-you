@@ -6,8 +6,3 @@ LANG = 'it'
 
 TM_HOME = '/tmp/vulcan_test/home'
 UPLOAD_DIR = '/tmp/vulcan_test/uploads'
-
-ENVIRONMENT_SETUP = """
-export PATH="{0}/bin":$PATH
-export MAKEFILES="{0}/Makefile"
-"""
