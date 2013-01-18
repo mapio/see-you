@@ -2,10 +2,15 @@
 
 echocol() { echo -e "\033[31m$@\033[0m"; }
 
-srcdir=$1
+srcdir="$1"
 
-if [ ! -d $srcdir ]; then
-	echo "Specify the source dir"
+if [ ! -d "$srcdir" ]; then
+	echo "Specify the source dir parameter"
+	exit 1
+fi
+
+if [ ! -d "$EXERCISES_DIR" ]; then
+	echo "Please set EXERCISES_DIR"
 	exit 1
 fi
 
@@ -20,11 +25,10 @@ echocol "Preparing tm tar directoroy..."
 mkdir $tempdir/bundle
 n=1
 echo -n "Adding exercises:  "
-for e in $srcdir/exercises/*; do
-	echo -n "$(basename $e) "
+for e in $(cat "$srcdir/exercises.txt"); do
 	dst=$tempdir/bundle/esercizio-$n
 	mkdir $dst
-	cp $e/{*.[ch],*.txt} $dst
+	cp "$EXERCISES_DIR/$e"/{*.[ch],*.txt} $dst
 	n=$(( n + 1 ))
 done
 echo
@@ -44,7 +48,7 @@ cp $SUPPORT/bin/{consegna,identifica} $tempdir/bundle/bin
 echocol "Generating tm conf file..."
 
 filter='^(bin/.*|Makefile|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$'
-python -m tm.mkconf -vf "$filter" tm_conf.py $srcdir/base-tm.py $tempdir/bundle $srcdir/registered_uids.tsv
+python -m tm.mkconf -vf "$filter" tm_conf.py "$srcdir/base-tm.py" $tempdir/bundle "$srcdir/registered_uids.tsv"
 
 echocol "Generating minosse configuration..."
 
@@ -54,7 +58,6 @@ cp $SUPPORT/Makefile-teacher $tempdir/bundle/Makefile-teacher
 cp $SUPPORT/bin/valuta $tempdir/bundle/valuta
 
 filter='^(valuta|Makefile.*|(esercizio-[0-9]+/(input|output|args)-.+\.txt))$'
-python -m tm.mkconf -vf "$filter" minos_conf.py $srcdir/base-minos.py $tempdir/bundle
-
+python -m tm.mkconf -vf "$filter" minos_conf.py "$srcdir/base-minos.py" $tempdir/bundle
 
 rm -rf $tempdir
