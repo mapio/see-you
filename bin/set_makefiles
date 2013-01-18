@@ -1,1 +1,1 @@
-export MAKEFILES="$(pwd)/Makefile-student $(pwd)/Makefile-teacher"
+export MAKEFILES="$(pwd)/support/Makefile-student $(pwd)/support/Makefile-teacher"
