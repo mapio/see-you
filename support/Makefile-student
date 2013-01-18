@@ -11,7 +11,6 @@ compile = $(CC) $(CFLAGS) -c -o $@ $<
 link = $(CC) $^ -o $@
 test = ./soluzione $$\(cat args-$*.txt\) \< $< \> $@
 
-max_output = 1024 * 1024
 exit_on_fail = true
 
 red := bash -c 'echo -ne "\033[31m"'
@@ -59,13 +58,13 @@ $(TARGET): $(OBJECTS)
 actual-%.txt: input-%.txt args-%.txt $(TARGET)
 	@rm -f .exec-$* $@
 	@echo $(test)
-	@if ! bash -o pipefail -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< | head -c $$(( $(max_output) )) > $@" 2> .exec-$*; then\
+	@if ! bash -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< > $@" 2> .exec-$*; then\
 		if grep -qi "bash: line 1:" .exec-$*; then\
-			$(red);\
+			$(blue);\
 			echo execution timeout 1>&2;\
 			$(reset);\
 		else\
-			$(blue);\
+			$(red);\
 			echo non-zero return value 1>&2;\
 			$(reset);\
 		fi;\
@@ -75,11 +74,13 @@ actual-%.txt: input-%.txt args-%.txt $(TARGET)
 
 
 diffs-%.txt: output-%.txt actual-%.txt
-	@echo diff -ub $^ \> $@
-	@diff -ub $^ > $@ || true
+	@echo diff -b $^ \> $@
+	@diff -b $^ > $@ || true
 	@if [ -s $@ ]; then\
-	 	$(blue);\
-		cat $@;\
+	 	$(red);\
+	 	echo "test:$*: ci sono le seguenti differenze nell'output...";\
 		$(reset);\
+		cat $@;\
 		if $(exit_on_fail); then exit 1; fi;\
-	fi
+	fi;\
+	echo "test:$*: eseguito con successo!"

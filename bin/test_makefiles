@@ -52,7 +52,7 @@ echo -n AB > output-0.txt
 echo -e '#include <stdio.h>\nint main( void ) { printf( "AB" ); return 0; }' > soluzione.c
 
 assert "No error" "" "" "" NF
-assert "Truncation" "max_output=1" "< AB"$'\n'"> A"
+#assert "Truncation" "max_output=1" "< AB"$'\n'"> A"
 
 echo 'int main( void ) { return 0; }' > soluzione.c
 assert "Diff" "" "< AB"
