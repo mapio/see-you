@@ -47,7 +47,7 @@ cp $SUPPORT/bin/{consegna,identifica} $tempdir/bundle/bin
 
 echocol "Generating tm conf file..."
 
-cp "$srcdir/base-tm.py" $tempdir/base-tm.py
+cat "$srcdir/base-tm.py" > $tempdir/base-tm.py
 cat >> $tempdir/base-tm.py <<EOF
 ENVIRONMENT_SETUP = """
 export PATH="{0}/bin":\$PATH
@@ -66,7 +66,7 @@ cp $SUPPORT/Makefile-student $tempdir/bundle/Makefile-student
 cp $SUPPORT/Makefile-teacher $tempdir/bundle/Makefile-teacher
 cp $SUPPORT/bin/valuta $tempdir/bundle/valuta
 
-cp "$srcdir/base-minos.py" $tempdir/base-minos.py
+cat "$srcdir/base-minos.py" > $tempdir/base-minos.py
 cat >> $tempdir/base-minos.py <<EOF
 EVAL_COMMAND = './valuta'
 EOF
