@@ -24,7 +24,7 @@ compila: $(TARGET) ;
 test: $(DIFFS) ;
 
 pulisci:
-	@rm -f *.o .compile-* .link-* .exec-* actual-*.txt diffs-*.txt $(TARGET)
+	@rm -f *.o .compile-* .link-* .exec-* actual-*.txt diffs-*.txt $(TARGET) \~*
 
 %.o: %.c
 	@rm -f .compile-$*
