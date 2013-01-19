@@ -55,9 +55,11 @@ export MAKEFILES="{0}/Makefile"
 """
 EOF
 filter='^(bin/.*|Makefile|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$'
+chmod -R u+rX-w,go= $tempdir/bundle
 python -m tm.mkconf -vf "$filter" tm-conf.py $tempdir/base-tm.py $tempdir/bundle "$srcdir/registered_uids.tsv"
+chmod -R u+rwX,go= $tempdir/bundle
 
-echocol "Generating minosse configuration..."
+echocol "Generating minos configuration..."
 
 rm -rf $tempdir/bundle/{Makefile,bin,LEGGIMI.txt}
 cp $SUPPORT/Makefile-student $tempdir/bundle/Makefile-student
@@ -69,6 +71,7 @@ cat >> $tempdir/base-minos.py <<EOF
 EVAL_COMMAND = './valuta'
 EOF
 filter='^(valuta|Makefile.*|(esercizio-[0-9]+/(input|output|args)-.+\.txt))$'
+chmod -R u+rX-w,go= $tempdir/bundle
 python -m tm.mkconf -vf "$filter" minos-conf.py  $tempdir/base-minos.py $tempdir/bundle
-
+chmod -R u+rwX,go= $tempdir/bundle
 rm -rf $tempdir
