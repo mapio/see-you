@@ -56,6 +56,7 @@ export MAKEFILES="{0}/Makefile"
 EOF
 filter='^(bin/.*|Makefile|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$'
 chmod -R u+rX-w,go= $tempdir/bundle
+find $tempdir/bundle -type d -exec chmod u+w {} \;
 python -m tm.mkconf -vf "$filter" tm-conf.py $tempdir/base-tm.py $tempdir/bundle "$srcdir/registered_uids.tsv"
 chmod -R u+rwX,go= $tempdir/bundle
 
