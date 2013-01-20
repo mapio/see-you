@@ -73,5 +73,6 @@ EOF
 filter='^(valuta|Makefile.*|(esercizio-[0-9]+/(input|output|args)-.+\.txt))$'
 chmod -R u+rX-w,go= $tempdir/bundle
 python -m tm.mkconf -vf "$filter" minos-conf.py  $tempdir/base-minos.py $tempdir/bundle
-chmod -R u+rwX,go= $tempdir/bundle
+
+chmod -R u+rwX,go= $tempdir
 rm -rf $tempdir
