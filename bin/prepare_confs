@@ -50,8 +50,8 @@ echocol "Generating tm conf file..."
 cat "$srcdir/base-tm.py" > $tempdir/base-tm.py
 cat >> $tempdir/base-tm.py <<EOF
 ENVIRONMENT_SETUP = """
-export PATH="{0}/bin":\$PATH
-export MAKEFILES="{0}/Makefile"
+export PATH="### tm_home ###/bin":\$PATH
+export MAKEFILES="### tm_home ###/Makefile"
 """
 EOF
 filter='^(bin/.*|Makefile|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$'
