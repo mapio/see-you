@@ -63,6 +63,9 @@ assert "Retval" "" "" "non-zero return value"
 echo 'int main( void ) { for (;;); return 0; }' > soluzione.c
 assert "Timeout" "" "" "execution timeout"
 
+echo 'int main( void ) { int *x=0; *x=1; return 0; }' > soluzione.c
+assert "Segfault" "" "" "segmentation fault"
+
 cd ..
 
 rm -rf $tempdir
