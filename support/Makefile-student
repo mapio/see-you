@@ -59,9 +59,13 @@ actual-%.txt: input-%.txt args-%.txt $(TARGET)
 	@rm -f .exec-$* $@
 	@echo $(test)
 	@if ! bash -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< > $@" 2> .exec-$*; then\
-		if grep -qi "bash: line 1:" .exec-$*; then\
+		if grep -Eqi 'bash: line 1:.*(Killed|Cputime limit exceeded)' .exec-$*; then\
 			$(blue);\
 			echo execution timeout 1>&2;\
+			$(reset);\
+		elif grep -Eqi 'bash: line 1:.*Segmentation fault' .exec-$*; then\
+			$(red);\
+			echo segmentation fault 1>&2;\
 			$(reset);\
 		else\
 			$(red);\
@@ -75,7 +79,7 @@ actual-%.txt: input-%.txt args-%.txt $(TARGET)
 
 diffs-%.txt: output-%.txt actual-%.txt
 	@echo diff -b $^ \> $@
-	@diff -b $^ > $@ || true
+	@diff -b $^ > $@ 2> /dev/null || true
 	@if [ -s $@ ]; then\
 	 	$(red);\
 	 	echo "test:$*: ci sono le seguenti differenze nell'output...";\
