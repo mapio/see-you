@@ -1,8 +1,11 @@
 #!/bin/bash
 
 export MAKEFILES="$(pwd)/Makefile-student $(pwd)/Makefile-teacher"
-make revals >/dev/null
-for es in ./esercizio-*/eval.txt; do
-	n=$(echo $es | sed 's|.*-\(.*\)/.*|\1|' )
-	sed -n "s| *\(.*\) diffs-\(.*\).txt|"$n" \2 \1|p" < $es
-done
+touch esercizio-*/output-*txt
+make revals exit_on_fail=false >/dev/null 2>&1
+if [ "$(echo ./esercizio-*/eval.txt)" != './esercizio-*/eval.txt' ]; then
+	for es in ./esercizio-*/eval.txt; do
+		n=$(echo $es | sed 's|.*-\(.*\)/.*|\1|' )
+		sed -n "s| *\(.*\) diffs-\(.*\).txt|"$n" \2 \1|p" < $es
+	done
+fi
