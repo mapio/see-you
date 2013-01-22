@@ -2,8 +2,8 @@
 
 echocol() { echo -ne "\033[31m$@...\033[0m "; }
 
-export EXERCISES_DIR=data/test_srcdir
-./bin/prepare_confs data/test_srcdir >/dev/null 2>&1
+export EXERCISES_DIR=./test/srcdir
+./bin/prepare_confs $EXERCISES_DIR >/dev/null 2>&1
 
 export PYTHONPATH=~/Documents/SCM/programming/eeg/tristo-mietitore
 
