@@ -16,7 +16,6 @@ fi
 
 export PYTHONPATH=/Users/santini/Documents/SCM/programming/eeg/tristo-mietitore
 export SUPPORT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/support"
-export MAKEFILES="$SUPPORT/Makefile-student $SUPPORT/Makefile-teacher"
 
 tempdir=$(mktemp -d /tmp/vulcan-XXXXXXXXX) || exit 1
 
@@ -35,15 +34,14 @@ echo
 
 echocol "Making test files..."
 
-make -wC $tempdir/bundle revals
+MAKEFILES="$SUPPORT/Makefile $SUPPORT/Makefile-prepare" make -wC $tempdir/bundle routs
 rm -f $tempdir/bundle/*/{soluzione*,*.[ch]}
 
 echocol "Adding readme and bins..."
 
 cp $SUPPORT/LEGGIMI.txt $tempdir/bundle/LEGGIMI.txt
-cp $SUPPORT/Makefile-student $tempdir/bundle/Makefile
 mkdir $tempdir/bundle/bin
-cp $SUPPORT/bin/{consegna,identifica} $tempdir/bundle/bin
+cp $SUPPORT/Makefile $SUPPORT/bin/{consegna,identifica} $tempdir/bundle/bin
 
 echocol "Generating tm conf file..."
 
@@ -51,10 +49,10 @@ cat "$srcdir/base-tm.py" > $tempdir/base-tm.py
 cat >> $tempdir/base-tm.py <<EOF
 ENVIRONMENT_SETUP = """
 export PATH="### tm_home ###/bin":\$PATH
-export MAKEFILES="### tm_home ###/Makefile"
+export MAKEFILES="### tm_home ###/bin/Makefile"
 """
 EOF
-filter='^(bin/.*|Makefile|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$'
+filter='^(bin/.*|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$'
 chmod -R u+rX-w,go= $tempdir/bundle
 find $tempdir/bundle -type d -exec chmod u+w {} \;
 python -m tm.mkconf -vf "$filter" tm-conf.py $tempdir/base-tm.py $tempdir/bundle "$srcdir/registered_uids.tsv"
@@ -62,16 +60,14 @@ chmod -R u+rwX,go= $tempdir/bundle
 
 echocol "Generating minos configuration..."
 
-rm -rf $tempdir/bundle/{Makefile,bin,LEGGIMI.txt}
-cp $SUPPORT/Makefile-student $tempdir/bundle/Makefile-student
-cp $SUPPORT/Makefile-teacher $tempdir/bundle/Makefile-teacher
-cp $SUPPORT/bin/valuta $tempdir/bundle/valuta
+rm -rf $tempdir/bundle/{bin,LEGGIMI.txt}
+cp $SUPPORT/bin/valuta.py $SUPPORT/Makefile $tempdir/bundle
 
 cat "$srcdir/base-minos.py" > $tempdir/base-minos.py
 cat >> $tempdir/base-minos.py <<EOF
-EVAL_COMMAND = './valuta'
+EVAL_COMMAND = [ 'python', 'valuta.py' ]
 EOF
-filter='^(valuta|Makefile.*|(esercizio-[0-9]+/(input|output|args)-.+\.txt))$'
+filter='^(valuta.py|Makefile|(esercizio-[0-9]+/(input|output|args)-.+\.txt))$'
 chmod -R u+rX-w,go= $tempdir/bundle
 find $tempdir/bundle -type d -exec chmod u+w {} \;
 python -m tm.mkconf -vf "$filter" minos-conf.py  $tempdir/base-minos.py $tempdir/bundle
