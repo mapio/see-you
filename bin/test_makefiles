@@ -42,7 +42,7 @@ assert() {
 	fi
 }
 
-export MAKEFILES=$(pwd)/support/Makefile-student
+export MAKEFILES=$(pwd)/support/Makefile
 
 tempdir=$(mktemp -d /tmp/vulcan-XXXXXXXXX) || exit 1
 cd $tempdir
