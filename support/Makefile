@@ -81,7 +81,7 @@ actual-%.txt: input-%.txt args-%.txt $(TARGET)
 
 diffs-%.txt: output-%.txt actual-%.txt
 	@echo diff -b $^ \> $@
-	@bash -c "diff -b <( sed -e '$$a\' actual-$*.txt ) <( sed -e '$$a\' output-$*.txt ) > $@" 2> /dev/null || true
+	@bash -c "diff -b <( sed -e '\$$a\' actual-$*.txt ) <( sed -e '\$$a\' output-$*.txt ) > $@" 2> /dev/null || true
 	@if [ -s $@ ]; then\
 	 	$(red);\
 	 	cat $@;\
