@@ -24,12 +24,14 @@ compila: $(TARGET) ;
 test: $(DIFFS) ;
 
 pulisci:
-	@rm -f *.o .compile-* .link-* .exec-* actual-*.txt diffs-*.txt $(TARGET) \~*
+	@rm -f *.o .compile-* .link-* .errors-* actual-*.txt diffs-*.txt $(TARGET) \~*
 
 %.o: %.c
 	@rm -f .compile-$*
 	@echo $(compile)
-	@$(compile) -fmessage-length=0 2> .compile-$* || true
+	@if ! $(compile) -fmessage-length=0 2> .compile-$*; then\
+		echo "error: compiler exited with error: $$?" > .compile-$*;\
+	fi
 	@if grep -q warning: .compile-$*; then\
 		$(red);\
 		grep ': warning:' .compile-$*;\
@@ -46,7 +48,7 @@ $(TARGET): $(OBJECTS)
 	@rm -f .link-$@
 	@echo $(link)
 	@$(link) -fmessage-length=0 2> .link-$@ || true
-	@if grep -q "1 exit status" .link-$@; then\
+	@if [ -s .link-$@ ]; then\
 		$(blue);\
 		cat .link-$@;\
 		$(reset);\
@@ -56,14 +58,14 @@ $(TARGET): $(OBJECTS)
 .PRECIOUS: actual-%.txt
 
 actual-%.txt: input-%.txt args-%.txt $(TARGET)
-	@rm -f .exec-$* $@
+	@rm -f .errors-$* $@
 	@echo $(test)
-	@if ! bash -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< > $@" 2> .exec-$*; then\
-		if grep -Eqi 'bash: line 1:.*(Killed|Cputime limit exceeded)' .exec-$*; then\
+	@if ! bash -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< > $@" 2> .errors-$*; then\
+		if grep -Eqi 'bash: line 1:.*(Killed|Cputime limit exceeded)' .errors-$*; then\
 			$(blue);\
 			echo execution timeout 1>&2;\
 			$(reset);\
-		elif grep -Eqi 'bash: line 1:.*Segmentation fault' .exec-$*; then\
+		elif grep -Eqi 'bash: line 1:.*Segmentation fault' .errors-$*; then\
 			$(red);\
 			echo segmentation fault 1>&2;\
 			$(reset);\
@@ -82,9 +84,8 @@ diffs-%.txt: output-%.txt actual-%.txt
 	@diff -b $^ > $@ 2> /dev/null || true
 	@if [ -s $@ ]; then\
 	 	$(red);\
-	 	echo "test:$*: ci sono le seguenti differenze nell'output...";\
+	 	cat $@;\
 		$(reset);\
-		cat $@;\
 		if $(exit_on_fail); then exit 1; fi;\
 	fi;\
-	echo "test:$*: eseguito con successo!"
+	echo "test:$*: ok"

@@ -4,25 +4,22 @@ CC = gcc
 OUTPUTS = $(INPUTS:input-%.txt=output-%.txt)
 EXERCISES = $(wildcard ./esercizio-*/.)
 
-.PHONY: outs clean revals rclean $(EXERCISES)
+.PHONY: outs clean routs rclean $(EXERCISES)
 
 outs: $(OUTPUTS) ;
 
 clean: pulisci
-	@rm -f output-*.txt eval.txt
+	@rm -f output-*.txt
 
 .PRECIOUS: output-%.txt
 
 output-%.txt: input-%.txt args-%.txt $(TARGET)
 	./$(TARGET) $$(cat args-$*.txt) < $< > $@
 
-eval.txt: $(DIFFS)
-	wc -l $(DIFFS) > eval.txt
-
-revals: $(EXERCISES) ;
+routs: $(EXERCISES) ;
 
 $(EXERCISES):
-	$(MAKE) -C $@ eval.txt
+	$(MAKE) -C $@ clean outs
 
 rclean:
 	for e in $(EXERCISES); do $(MAKE) -C $$e clean; done
