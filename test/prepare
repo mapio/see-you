@@ -12,7 +12,7 @@ if diff <(
 ( python <<EOF
 from tm.mkconf import tar, untar, lstar
 l = {}
-execfile( 'tm-conf.py', l )
+execfile( '$EXERCISES_DIR-tm.py', l )
 lstar( l[ 'TAR_DATA' ] )
 EOF
 ) | sort | awk '{print $1, $3, $6}' ) <(cat <<EOF
@@ -21,10 +21,10 @@ EOF
 -r-------- 0 esercizio-1/input-1.txt
 -r-------- 0 esercizio-1/output-1.txt
 -r-------- 1420 LEGGIMI.txt
--r-------- 2012 bin/Makefile
+-r-------- 2088 bin/Makefile
+-r-x------ 0 bin/
 -r-x------ 41 bin/identifica
 -r-x------ 69 bin/consegna
--rwx------ 0 bin/
 -rwx------ 0 esercizio-1/
 EOF
 ); then
@@ -33,12 +33,12 @@ else
 	echo FAIL
 fi
 
-echocol "Minos"
+echocol "See You"
 if diff <(
 ( python <<EOF
 from tm.mkconf import tar, untar, lstar
 l = {}
-execfile( 'minos-conf.py', l )
+execfile( '$EXERCISES_DIR-cu.py', l )
 lstar( l[ 'TAR_DATA' ] )
 EOF
 ) | sort | awk '{print $1, $3, $6}' ) <(cat <<EOF
@@ -48,8 +48,8 @@ EOF
 -r-------- 0 esercizio-1/input-1t.txt
 -r-------- 0 esercizio-1/output-1.txt
 -r-------- 0 esercizio-1/output-1t.txt
--r-------- 387 valuta.py
--r-------- 2012 Makefile
+-r-------- 2088 bin/Makefile
+-r-x------ 0 bin/
 -rwx------ 0 esercizio-1/
 EOF
 ); then
@@ -58,4 +58,4 @@ else
 	echo FAIL
 fi
 
-rm -f *-conf.py
+rm -f $EXERCISES_DIR-??.py

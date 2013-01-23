@@ -8,7 +8,7 @@ if [ ! -d "$srcdir" ]; then
 	echo "Specify the source dir parameter"
 	exit 1
 fi
-srcdir="${srcdir%%/*}"
+# srcdir="${srcdir%%[/]*}" FIND A WAY TO REMOVE JUST THE TRAILING /
 
 if [ ! -d "$EXERCISES_DIR" ]; then
 	echo "Please set EXERCISES_DIR"
@@ -33,7 +33,7 @@ for e in $(cat "$srcdir/exercises.txt"); do
 	n=$(( n + 1 ))
 done
 
-echocol "Making test files..."
+echocol "Making test files (and removing the solution source code)..."
 
 MAKEFILES="$SUPPORT/Makefile $SUPPORT/Makefile-prepare" make -wC $tempdir/bundle routs
 rm -f $tempdir/bundle/*/{soluzione*,*.[ch]}
@@ -44,7 +44,12 @@ cp $SUPPORT/LEGGIMI.txt $tempdir/bundle/LEGGIMI.txt
 mkdir $tempdir/bundle/bin
 cp $SUPPORT/Makefile $SUPPORT/bin/{consegna,identifica} $tempdir/bundle/bin
 
-echocol "*** Generating the configuration file (base + tar + uids)..."
+echocol "Fixing perms..."
+
+chmod -R u+rX-w,go= $tempdir/bundle
+find $tempdir/bundle -name esercizio-\* -type d -exec chmod u+w {} \;
+
+echocol "*** Generating the TM configuration file (base + tar + uids)..."
 
 cat "$srcdir/conf.py" > $tempdir/conf.py
 cat >> $tempdir/conf.py <<EOF
@@ -58,9 +63,12 @@ export MAKEFILES="### home ###/bin/Makefile"
 EOF
 
 filter='^(bin/.*|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$'
-chmod -R u+rX-w,go= $tempdir/bundle
-find $tempdir/bundle -type d -exec chmod u+w {} \;
-python -m tm.mkconf -vf "$filter" ${srcdir}.py $tempdir/conf.py $tempdir/bundle "$srcdir/registered_uids.tsv"
+python -m tm.mkconf -vf "$filter" -b $tempdir/conf.py -u "$srcdir/registered_uids.tsv" $tempdir/bundle "${srcdir}-tm.py"
+
+echocol "*** Generating the CU configuration file (base + tar + uids)..."
+
+filter='^(bin/Makefile|esercizio-[0-9]+/(input|output|args)-.+\.txt)$'
+python -m tm.mkconf -vf "$filter" -b "$srcdir/conf.py" $tempdir/bundle "${srcdir}-cu.py"
 
 echocol "Cleanup temp dir..."
 
