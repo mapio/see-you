@@ -16,13 +16,12 @@ isots = lambda timestamp: datetime.fromtimestamp( int( timestamp ) / 1000 ).isof
 
 TestCase = namedtuple( 'TestCase', 'name time failure error' )
 MakeResult = namedtuple( 'MakeResult', 'elapsed stdout stderr' )
-Exercise = namedtuple( 'Exercise', 'path cases' )
 
 DEBUG = 1
 
 class TestRunner( object ):
 
-	# cases_map := exercise_name -> Exercise
+	# cases_map := exercise_name -> ( case_num, )
 	# makes_map := exercise_name -> MakeResult
 	# suites_map := exercise_name -> ( TestCase, )
 
@@ -35,9 +34,9 @@ class TestRunner( object ):
 		re = recompile( r'.*/(esercizio-[0-9]+)/(input-(.*)\.txt)?' )
 		cases_map = {}
 		for path in glob( join( temp_dir, 'esercizio-*/' ) ):
-			cases_map[ re.match( path ).group( 1 ) ] = Exercise( path, (
+			cases_map[ re.match( path ).group( 1 ) ] = (
 				re.match( input_file_path ).group( 3 ) for input_file_path in glob( join( path, 'input-*.txt' ) )
-			) )
+			)
 		self.uid = uid
 		self.timestamp = timestamp
 		self.temp_dir = temp_dir
@@ -46,9 +45,13 @@ class TestRunner( object ):
 		self.suites_map = None
 
 	def make( self ):
-		def _make( path ):
+		def _make( exercise ):
 			try:
-				cmd = [ 'make', '-f', join( self.temp_dir, 'bin', 'Makefile' ), '-C', path, 'pulisci', 'test', 'exit_on_fail=false', 'blue=echo', 'red=echo', 'reset=echo' ]
+				cmd = [ 'make',
+					'-f', join( self.temp_dir, 'bin', 'Makefile' ),
+					'-C', join( self.temp_dir, exercise ),
+					'pulisci', 'test', 'exit_on_fail=false', 'blue=echo', 'red=echo', 'reset=echo'
+				]
 				if DEBUG: print ' '.join( cmd )
 				start = time()
 				stdout = check_output( cmd, stderr = STDOUT )
@@ -57,43 +60,40 @@ class TestRunner( object ):
 				stdout = None
 				stderr = e.stdout
 			finally:
-				elapsed = int( ( time() - start ) * 100 ) / 100
+				elapsed = int( ( time() - start ) * 1000 ) / 1000.0
 			return MakeResult( elapsed, stdout, stderr )
-		makes_map = {}
-		for exercise, path_cases in self.cases_map.items():
-			makes_map[ exercise ] = _make( path_cases[ 0 ] )
-		self.makes_map = makes_map
+		self.makes_map = dict( ( name, _make( name ) ) for name in self.cases_map.keys() )
 
 	def collect( self ):
 		if not self.makes_map: self.make()
 		suites_map = {}
-		for name, exercise in self.cases_map.items():
-			mr = self.makes_map[ name ]
+		for exercise, cases in self.cases_map.items():
+			mr = self.makes_map[ exercise ]
 			ts = [ TestCase( 'COMPILE', mr.elapsed, None, mr.stderr ) ]
-			for case_num in exercise.cases:
+			for case_num in cases:
 				case = 'case-{0}'.format( case_num )
-				with open( join( exercise.path, '.errors-{0}'.format( case_num ) ) ) as f: stderr = f.read()
+				with open( join( self.temp_dir, exercise, '.errors-{0}'.format( case_num ) ) ) as f: stderr = f.read()
 				if stderr:
 					ts.append( TestCase( case, '0', None,  stderr ) )
 				else:
-					with open( join( exercise.path, 'diffs-{0}.txt'.format( case_num ) ) ) as f: diffs = f.read()
+					with open( join( self.temp_dir, exercise, 'diffs-{0}.txt'.format( case_num ) ) ) as f: diffs = f.read()
 					ts.append( TestCase( case, '0', diffs if diffs else None, None ) )
-			suites_map[ name ] = tuple( ts )
+			suites_map[ exercise ] = tuple( ts )
 		self.suites_map = suites_map
 
 	def toxml( self ):
 		if not self.suites_map: self.collect()
-		for exercise, cases in self.suites_map.items():
+		for exercise, results in self.suites_map.items():
 			classname = '{0}.{1}'.format( self.uid, exercise )
-			tests = len( cases )
-			failures = sum( 1 for _ in cases if _.failure )
-			errors = sum( 1 for _ in cases if _.error )
-			elapsed = cases[ 0 ].time
+			tests = len( results )
+			failures = sum( 1 for _ in results if _.failure )
+			errors = sum( 1 for _ in results if _.error )
+			elapsed = results[ 0 ].time
 			with open( join( self.temp_dir, 'TEST-{0}.xml'.format( classname ) ), 'w' ) as out:
 				out.write( '<?xml version="1.0" encoding="UTF-8" ?>\n' )
 				out.write( '<testsuite failures="{0}" time="{1}" errors="{2}" skipped="0" tests="{3}" name="{4}" timestamp="{5}" hostname="localhost">\n'.format(
 					failures, elapsed, errors, tests, classname, isots( self.timestamp ) ) )
-				for tc in cases:
+				for tc in results:
 					if tc.error:
 						content = '<error><![CDATA[\n{0}\n\t]]></error>'.format( tc.error )
 					elif tc.failure:
