@@ -5,6 +5,7 @@ from os import chmod
 from os.path import join
 from re import compile as recompile
 from shutil import copytree, rmtree
+from string import printable
 from subprocess import check_output, STDOUT, CalledProcessError
 from tarfile import TarFile
 from tempfile import mkdtemp
@@ -13,6 +14,7 @@ from time import time
 from . import TAR_DATA, UPLOAD_DIR
 
 isots = lambda timestamp: datetime.fromtimestamp( int( timestamp ) / 1000 ).isoformat()
+asciify = lambda s: ''.join( map( lambda c: c if c in printable else r'\x{0:0x}'.format( ord( c ) ), s ) )
 
 MakeResult = namedtuple( 'MakeResult', 'elapsed output error' )
 
@@ -32,9 +34,7 @@ class TestCase( object ):
 	def toxml( self, classname ):
 		def _wrap( elem, cont, type_ = None ):
 			return '<{0}{1}><![CDATA[\n{2}\n\t]]></{0}>'.format(
-				elem,
-				' type ="{0}"'.format( type_ ) if type_ else '',
-				cont.encode( 'utf8', errors = 'replace' )  # content is in unicode
+				elem, ' type="{0}" message="{0}"'.format( type_ ) if type_ else '', asciify( cont )
 			)
 		content = []
 		if self.error:
@@ -100,7 +100,7 @@ class TestRunner( object ):
 		for exercise, cases in self.cases_map.items():
 			mr = self.makes_map[ exercise ]
 			ts = [ TestCase(
-				'make', TestCase.COMPILE, mr.elapsed, error = 'make' if mr.error else None, stderr = mr.error, stdout = mr.output
+				'make', TestCase.COMPILE, mr.elapsed, error = mr.error, stderr = mr.error, stdout = mr.output
 			) ]
 			if not mr.error:
 				for case_num in cases:
@@ -109,8 +109,12 @@ class TestRunner( object ):
 					if stderr:
 						ts.append( TestCase( case, TestCase.EXECUTION, error = stderr ) )
 					else:
+						with open( join( self.temp_dir, exercise, 'actual-{0}.txt'.format( case_num ) ) ) as f: actual = unicode( f.read(), errors = 'replace' )
 						with open( join( self.temp_dir, exercise, 'diffs-{0}.txt'.format( case_num ) ) ) as f: diffs = unicode( f.read(), errors = 'replace' )
-						ts.append( TestCase( case, TestCase.DIFF, failure = diffs if diffs else None ) )
+						if diffs:
+							ts.append( TestCase( case, TestCase.DIFF, failure = diffs, stdout = actual ) )
+						else:
+							ts.append( TestCase( case, TestCase.DIFF ) )
 			suites_map[ exercise ] = tuple( ts )
 		self.suites_map = suites_map
 
