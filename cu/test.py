@@ -16,51 +16,64 @@ from . import TAR_DATA, UPLOAD_DIR
 isots = lambda timestamp: datetime.fromtimestamp( int( timestamp ) / 1000 ).isoformat()
 
 TestCase = namedtuple( 'TestCase', 'name time failure error' )
+MakeResult = namedtuple( 'MakeResult', 'elapsed stdout stderr' )
+Exercise = namedtuple( 'Exercise', 'path cases' )
 
 DEBUG = 1
 
-def make( makefile, exercise ):
-	try:
-		cmd = [ 'make', '-f', makefile, '-C', exercise, 'pulisci', 'test', 'exit_on_fail=false', 'blue=echo', 'red=echo', 'reset=echo' ]
-		if DEBUG: print ' '.join( cmd )
-		start = time()
-		check_output( cmd, stderr = STDOUT )
-	except CalledProcessError as e:
-		output = e.output
-	else:
-		output = None
-	finally:
-		elapsed = int( ( time() - start ) * 100 ) / 100
-	return elapsed, output
+# exercise_num -> MakeResult
+def make( cases_map, makefile ):
+	def _make( path ):
+		try:
+			cmd = [ 'make', '-f', makefile, '-C', path, 'pulisci', 'test', 'exit_on_fail=false', 'blue=echo', 'red=echo', 'reset=echo' ]
+			if DEBUG: print ' '.join( cmd )
+			start = time()
+			stdout = check_output( cmd, stderr = STDOUT )
+			stderr = None
+		except CalledProcessError as e:
+			stdout = None
+			stderr = e.stdout
+		finally:
+			elapsed = int( ( time() - start ) * 100 ) / 100
+		return MakeResult( elapsed, stdout, stderr )
+	res = {}
+	for exercise_num, path_cases in cases_map.items():
+		res[ exercise_num ] = _make( path_cases[ 0 ] )
+	return res
 
-def unitize( temp_dir, uid, timestamp ):
+# exercise_num -> Exercise
+def cases( base_dir ):
+	re = recompile( r'.*/esercizio-([0-9]+)/(input-(.*)\.txt)?' )
+	res = {}
+	for path in glob( join( base_dir, 'esercizio-*/' ) ):
+		res[ re.match( path ).group( 1 ) ] = Exercise( path, (
+			re.match( input_file_path ).group( 3 ) for input_file_path in glob( join( path, 'input-*.txt' ) )
+		) )
+	return res
+
+def collect( temp_dir, uid, timestamp ):
 	timestamp = isots( timestamp )
-	makefile = join( temp_dir, 'bin', 'Makefile' )
-	p = recompile( r'.*/esercizio-([0-9]+)/(input-(.*)\.txt)?' )
-	for ex in glob( join( temp_dir, 'esercizio-*/' ) ):
-		exn = p.match( ex ).group( 1 )
-		classname = '{0}.esercizio-{1}'.format( uid, exn )
-		elapsed, output = make( makefile, ex )
-		if output:
-			ts = [ TestCase( 'COMPILE', '0', None, output ) ]
-		else:
-			ts = []
-			for inf in glob( join( ex, 'input-*.txt' ) ):
-				testn = p.match( inf ).group( 3 )
-				case = 'case-{0}'.format( testn )
-				with open( join( ex, '.errors-{0}'.format( testn ) ) ) as f: errors = f.read()
-				if errors:
-					ts.append( TestCase( case, '0', None,  errors ) )
-				else:
-					with open( join( ex, 'diffs-{0}.txt'.format( testn ) ) ) as f: diffs = f.read()
-					ts.append( TestCase( case, '0', diffs if diffs else None, None ) )
+	cases_map = cases( temp_dir )
+	make_map = make( cases_map, join( temp_dir, 'bin', 'Makefile' ) )
+	for exercise_num, exercise in cases_map.items():
+		mr = make_map[ exercise_num ]
+		ts = [ TestCase( 'COMPILE', '0', None, mr.stderr ) ]
+		classname = '{0}.esercizio-{1}'.format( uid, exercise_num )
+		for case_num in exercise.cases:
+			case = 'case-{0}'.format( case_num )
+			with open( join( exercise.path, '.errors-{0}'.format( case_num ) ) ) as f: stderr = f.read()
+			if stderr:
+				ts.append( TestCase( case, '0', None,  stderr ) )
+			else:
+				with open( join( exercise.path, 'diffs-{0}.txt'.format( case_num ) ) ) as f: diffs = f.read()
+				ts.append( TestCase( case, '0', diffs if diffs else None, None ) )
 		tests = len( ts )
 		failures = sum( 1 for _ in ts if _.failure )
 		errors = sum( 1 for _ in ts if _.error )
 		with open( join( temp_dir, 'TEST-{0}.xml'.format( classname ) ), 'w' ) as out:
 			out.write( '<?xml version="1.0" encoding="UTF-8" ?>\n' )
 			out.write( '<testsuite failures="{0}" time="{1}" errors="{2}" skipped="0" tests="{3}" name="{4}" timestamp="{5}" hostname="localhost">\n'.format(
-				failures, elapsed, errors, tests, classname, timestamp ) )
+				failures, mr.elapsed, errors, tests, classname, timestamp ) )
 			for tc in ts:
 				if tc.error:
 					content = '<error><![CDATA[\n{0}\n\t]]></error>'.format( tc.error )
@@ -80,7 +93,7 @@ def setup( uid, timestamp ):
 	with TarFile.open( join( UPLOAD_DIR, uid, timestamp + '.tar' ), mode = 'r' ) as tf: tf.extractall( td )
 	return td
 
-def test( uid, timestamp = None, result_dir = None, clean = None, raise_on_fail = True ):
+def test( uid, timestamp = None, result_dir = None, clean = None ):
 	if not result_dir: result_dir = UPLOAD_DIR
 	if not timestamp:
 		p = recompile( r'.*/([0-9]+)\.tar' )
@@ -90,7 +103,7 @@ def test( uid, timestamp = None, result_dir = None, clean = None, raise_on_fail 
 		if clean: rmtree( dest_dir )
 		else: return None, dest_dir
 	td = setup( uid, timestamp )
-	unitize( td, uid, timestamp )
+	collect( td, uid, timestamp )
 	copytree( td, dest_dir )
 	chmod( dest_dir, 0700 )
 	latest = join( result_dir, uid, 'latest' )

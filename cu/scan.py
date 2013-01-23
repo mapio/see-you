@@ -6,15 +6,18 @@ from os.path import basename, join, split, splitext
 from . import UPLOAD_DIR
 from .test import test
 
-def scan( result_dir = None, clean = False ):
-	uid2tars = defaultdict( list )
+def uploads():
+	uid2timestamps = defaultdict( list )
 	for tar in glob( join( UPLOAD_DIR, '*', '*.tar' ) ):
 		base, tarext = split( tar )
 		uid = basename( base )
 		ts, _ = splitext( tarext )
-		uid2tars[ uid ].append( ts )
-	for uid, tss in uid2tars.items():
-		hrts, dest_dir = test( uid, max( tss ), result_dir, clean, False )
+		uid2timestamps[ uid ].append( ts )
+	return uid2timestamps
+
+def scan( result_dir = None, clean = False ):
+	for uid, tss in uploads().items():
+		hrts, dest_dir = test( uid, max( tss ), result_dir, clean )
 		print ( 'Results for time {1} stored in {0}' if hrts else 'Results alreay present in {0} (use --clean to force re-testing)' ).format( dest_dir, hrts )
 
 
