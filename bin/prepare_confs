@@ -8,6 +8,7 @@ if [ ! -d "$srcdir" ]; then
 	echo "Specify the source dir parameter"
 	exit 1
 fi
+srcdir="${srcdir%%/*}"
 
 if [ ! -d "$EXERCISES_DIR" ]; then
 	echo "Please set EXERCISES_DIR"
@@ -19,18 +20,18 @@ export SUPPORT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/support"
 
 tempdir=$(mktemp -d /tmp/vulcan-XXXXXXXXX) || exit 1
 
-echocol "Preparing tm tar directoroy..."
+echocol "*** Preparing TM tar directoroy..."
+
+echocol "Adding exercises..."
 
 mkdir $tempdir/bundle
 n=1
-echo -n "Adding exercises:  "
 for e in $(cat "$srcdir/exercises.txt"); do
 	dst=$tempdir/bundle/esercizio-$n
 	mkdir $dst
 	cp "$EXERCISES_DIR/$e"/{*.[ch],*.txt} $dst
 	n=$(( n + 1 ))
 done
-echo
 
 echocol "Making test files..."
 
@@ -43,36 +44,25 @@ cp $SUPPORT/LEGGIMI.txt $tempdir/bundle/LEGGIMI.txt
 mkdir $tempdir/bundle/bin
 cp $SUPPORT/Makefile $SUPPORT/bin/{consegna,identifica} $tempdir/bundle/bin
 
-echocol "Generating tm conf file..."
+echocol "*** Generating the configuration file (base + tar + uids)..."
 
-cat "$srcdir/base-tm.py" > $tempdir/base-tm.py
-cat >> $tempdir/base-tm.py <<EOF
-TM_CLIENT = '$HOME/.tm'
+cat "$srcdir/conf.py" > $tempdir/conf.py
+cat >> $tempdir/conf.py <<EOF
+
+CLIENT = '$HOME/.tm'
 
 ENVIRONMENT_SETUP = """
-export PATH="### tm_home ###/bin":\$PATH
-export MAKEFILES="### tm_home ###/bin/Makefile"
+export PATH="### home ###/bin":\$PATH
+export MAKEFILES="### home ###/bin/Makefile"
 """
 EOF
+
 filter='^(bin/.*|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$'
 chmod -R u+rX-w,go= $tempdir/bundle
 find $tempdir/bundle -type d -exec chmod u+w {} \;
-python -m tm.mkconf -vf "$filter" tm-conf.py $tempdir/base-tm.py $tempdir/bundle "$srcdir/registered_uids.tsv"
-chmod -R u+rwX,go= $tempdir/bundle
+python -m tm.mkconf -vf "$filter" ${srcdir}.py $tempdir/conf.py $tempdir/bundle "$srcdir/registered_uids.tsv"
 
-echocol "Generating minos configuration..."
-
-rm -rf $tempdir/bundle/{bin,LEGGIMI.txt}
-cp $SUPPORT/bin/valuta.py $SUPPORT/Makefile $tempdir/bundle
-
-cat "$srcdir/base-minos.py" > $tempdir/base-minos.py
-cat >> $tempdir/base-minos.py <<EOF
-EVAL_COMMAND = [ 'python', 'valuta.py' ]
-EOF
-filter='^(valuta.py|Makefile|(esercizio-[0-9]+/(input|output|args)-.+\.txt))$'
-chmod -R u+rX-w,go= $tempdir/bundle
-find $tempdir/bundle -type d -exec chmod u+w {} \;
-python -m tm.mkconf -vf "$filter" minos-conf.py  $tempdir/base-minos.py $tempdir/bundle
+echocol "Cleanup temp dir..."
 
 chmod -R u+rwX,go= $tempdir
 rm -rf $tempdir

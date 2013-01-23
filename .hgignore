@@ -1,2 +1,4 @@
 ^minos-conf.py$
 ^tm-conf.py$
+^var$
+^jars$

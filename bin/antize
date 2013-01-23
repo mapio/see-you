@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+export SUPPORT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/support"
+
+ant -Dupload.dir=$(pwd) -f $SUPPORT/build.xml

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export JENKINS_HOME="$(pwd)/home"
+java -jar ./lib/jenkins.war --httpListenAddress=127.0.0.1 --argumentsRealm.passwd.admin=pippo14 --argumentsRealm.roles.admin=admin 2>jenkins.err >jenkins.out & echo $! > jenkins.pid

@@ -1,0 +1,19 @@
+#!/bin/bash -e
+
+export BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+cd "$WORKSPACE"
+
+if [ ! -r ./setup_done ]; then
+	cp -v "$BASE_DIR/SUPPORT/build.xml" .
+	cp -rv "$BASE_DIR/mu" .
+	cp -v "$BASE_DIR/minos-conf-jenkins.py" ./conf.py
+	touch ./setup_done
+fi
+
+mkdir -p "$uid"
+mv -v ./new.tar "$uid/${timestamp}.tar"
+
+export MINOS_SETTINGS="$WORKSPACE/conf.py"
+
+python -m mu.scan

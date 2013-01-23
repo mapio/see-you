@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<project name="JunitReport" basedir="." default="report">
+	<property name="upload.dir" value="."/>
+	<target name="mkdir">
+		<mkdir dir="${upload.dir}/antize/xml"/>
+	</target>
+	<target name="report" depends="mkdir">
+		<junitreport todir="${upload.dir}/antize/xml">
+			<fileset dir="${upload.dir}">
+				<include name="**/latest/TEST-*.xml"/>
+			</fileset>
+			<report format="frames" todir="${upload.dir}/antize/html"/>
+		</junitreport>
+	</target>
+</project>
