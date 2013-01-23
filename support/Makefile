@@ -76,8 +76,9 @@ actual-%.txt: input-%.txt args-%.txt $(TARGET)
 		fi;\
 		rm $@;\
 		if $(exit_on_fail); then exit 1; fi;\
+	else\
+		> .errors-$*;\
 	fi
-
 
 diffs-%.txt: output-%.txt actual-%.txt
 	@echo diff -b $^ \> $@
