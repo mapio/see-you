@@ -30,7 +30,7 @@ pulisci:
 	@rm -f .compile-$*
 	@echo $(compile)
 	@if ! $(compile) -fmessage-length=0 2> .compile-$*; then\
-		echo "error: compiler exited with error: $$?" > .compile-$*;\
+		echo "make: error: compiler exit status: $$?" >> .compile-$*;\
 	fi
 	@if grep -q warning: .compile-$*; then\
 		$(red);\
