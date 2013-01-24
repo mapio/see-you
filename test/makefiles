@@ -67,4 +67,4 @@ assert "Segfault" "" "" "segmentation fault"
 
 cd ..
 
-rm -rf $tempdir
+chmod -R u+rwx $tempdir; rm -rf $tempdir
