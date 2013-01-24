@@ -84,6 +84,13 @@ class TestRunner( object ):
 	def __str__( self ):
 		return 'TestRunner< "{0}", "{1}", "{2}" >'.format( self.uid, isots( self.timestamp ), self.temp_dir )
 
+	def __enter__( self ):
+		return self
+
+	def __exit__( self, exc_type, exc_value, traceback ):
+		self.delete()
+		return False  # pass the exceptions upwards
+
 	def make( self ):
 		def _make( exercise ):
 			try:
@@ -103,6 +110,8 @@ class TestRunner( object ):
 			except CalledProcessError as e:
 				stdout = None
 				stderr = unicode( e.output, errors = 'replace' )
+			else:
+				stderr = None
 			finally:
 				elapsed = int( ( time() - start ) * 1000 ) / 1000.0
 			return MakeResult( elapsed, stdout, stderr )
@@ -130,8 +139,7 @@ class TestRunner( object ):
 			) ]
 			if not mr.error:
 				for case_num in cases:
-					case = 'case-{0}'.format( case_num )
-					with open( join( self.temp_dir, exercise, '.errors-{0}'.format( case_num ) ) ) as f: stderr = unicode( f.read(), errors = 'replace' )
+					case = '{0}'.format( case_num )
 					stderr, actual, diffs = self.getres( exercise, case_num )
 					if stderr:
 						ts.append( TestCase( case, TestCase.EXECUTION, error = stderr ) )

@@ -16,13 +16,14 @@ def test( uid, timestamp = None, result_dir = None, clean = None ):
 	if isdir( dest_dir ):
 		if clean: rmrotree( dest_dir )
 		else: return 'skipped ({0} already exists, corresponding to time {1})'.format( dest_dir, isots( timestamp ) )
-	tr = TestRunner( uid, timestamp )
-	tr.toxml()
-	tr.saveto( dest_dir )
+	with TestRunner( uid, timestamp ) as tr:
+		tr.toxml()
+		tr.saveto( dest_dir )
+		tr_as_str = str( tr )
 	latest = join( result_dir, uid, 'latest' )
 	if islink( latest ): unlink( latest )
 	symlink( timestamp, latest )
-	return 'saved in {0} by {1}'.format( dest_dir, tr )
+	return 'saved in {0} by {1}'.format( dest_dir, tr_as_str )
 
 if __name__ == '__main__':
 
