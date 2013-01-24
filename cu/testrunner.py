@@ -1,8 +1,8 @@
 from collections import namedtuple
 from datetime import datetime
 from glob import glob
-from os import chmod
-from os.path import join
+from os import chmod, unlink
+from os.path import join, dirname
 from re import compile as recompile
 from shutil import copytree, rmtree
 from string import printable
@@ -17,6 +17,15 @@ isots = lambda timestamp: datetime.fromtimestamp( int( timestamp ) / 1000 ).isof
 asciify = lambda s: ''.join( map( lambda c: c if c in printable else r'\x{0:0x}'.format( ord( c ) ), s ) )
 
 MakeResult = namedtuple( 'MakeResult', 'elapsed output error' )
+
+def rmrotree( path ):
+	def _oe( f, p, e ):
+		if p == path: return
+		pp = dirname( p )
+		chmod( pp, 0700 )
+		chmod( p, 0700 )
+		unlink( p )
+	rmtree( path, onerror = _oe )
 
 class TestCase( object ):
 

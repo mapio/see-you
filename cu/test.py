@@ -3,10 +3,9 @@ from glob import glob
 from os import symlink, unlink
 from os.path import join, islink, isdir
 from re import compile as recompile
-from shutil import rmtree
 
 from . import UPLOAD_DIR
-from .testrunner import TestRunner, isots
+from .testrunner import TestRunner, isots, rmrotree
 
 def test( uid, timestamp = None, result_dir = None, clean = None ):
 	if not result_dir: result_dir = UPLOAD_DIR
@@ -15,7 +14,7 @@ def test( uid, timestamp = None, result_dir = None, clean = None ):
 		timestamp = max( re.match( _ ).group( 1 ) for _ in glob( join( UPLOAD_DIR, uid, '*.tar' ) ) )
 	dest_dir = join( result_dir, uid, timestamp )
 	if isdir( dest_dir ):
-		if clean: rmtree( dest_dir )
+		if clean: rmrotree( dest_dir )
 		else: return 'skipped ({0} already exists, corresponding to time {1})'.format( dest_dir, isots( timestamp ) )
 	tr = TestRunner( uid, timestamp )
 	tr.toxml()
