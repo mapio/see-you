@@ -94,6 +94,18 @@ class TestRunner( object ):
 			return MakeResult( elapsed, stdout, stderr )
 		self.makes_map = dict( ( name, _make( name ) ) for name in self.cases_map.keys() )
 
+	def getres( self, exercise, case_num ):
+		def _r( exercise, path, case_num ):
+			with open( join( self.temp_dir, exercise, path.format( case_num ) ) ) as f: data = unicode( f.read(), errors = 'replace' )
+			return data
+		stderr = _r( exercise, '.errors-{0}', case_num )
+		if stderr:
+			actual = diffs = None
+		else:
+			actual = _r( exercise, 'actual-{0}.txt', case_num )
+			diffs = _r( exercise, 'diffs-{0}.txt', case_num )
+		return stderr, actual, diffs
+
 	def collect( self ):
 		if not self.makes_map: self.make()
 		suites_map = {}
@@ -106,11 +118,10 @@ class TestRunner( object ):
 				for case_num in cases:
 					case = 'case-{0}'.format( case_num )
 					with open( join( self.temp_dir, exercise, '.errors-{0}'.format( case_num ) ) ) as f: stderr = unicode( f.read(), errors = 'replace' )
+					stderr, actual, diffs = self.getres( exercise, case_num )
 					if stderr:
 						ts.append( TestCase( case, TestCase.EXECUTION, error = stderr ) )
 					else:
-						with open( join( self.temp_dir, exercise, 'actual-{0}.txt'.format( case_num ) ) ) as f: actual = unicode( f.read(), errors = 'replace' )
-						with open( join( self.temp_dir, exercise, 'diffs-{0}.txt'.format( case_num ) ) ) as f: diffs = unicode( f.read(), errors = 'replace' )
 						if diffs:
 							ts.append( TestCase( case, TestCase.DIFF, failure = diffs, stdout = actual ) )
 						else:
