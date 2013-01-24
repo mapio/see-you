@@ -90,11 +90,16 @@ class TestRunner( object ):
 				cmd = [ 'make',
 					'-f', join( self.temp_dir, 'bin', 'Makefile' ),
 					'-C', join( self.temp_dir, exercise ),
-					'pulisci', 'test', 'exit_on_fail=false', 'blue=echo', 'red=echo', 'reset=echo'
+					'pulisci', 'LC_ALL=C'
+				]
+				stdout = unicode( check_output( cmd, stderr = STDOUT ), errors = 'replace' )
+				cmd = [ 'make',
+					'-f', join( self.temp_dir, 'bin', 'Makefile' ),
+					'-C', join( self.temp_dir, exercise ),
+					'test', 'exit_on_fail=false', 'blue=echo', 'red=echo', 'reset=echo', 'LC_ALL=C'
 				]
 				start = time()
 				stdout = unicode( check_output( cmd, stderr = STDOUT ), errors = 'replace' )
-				stderr = None
 			except CalledProcessError as e:
 				stdout = None
 				stderr = unicode( e.output, errors = 'replace' )
@@ -161,5 +166,5 @@ class TestRunner( object ):
 
 	def delete( self ):
 		if self.temp_dir:
-			rmtree( self.temp_dir )
+			rmrotree( self.temp_dir )
 			self.temp_dir = None
