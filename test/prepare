@@ -21,7 +21,7 @@ EOF
 -r-------- 0 esercizio-1/input-1.txt
 -r-------- 0 esercizio-1/output-1.txt
 -r-------- 1420 LEGGIMI.txt
--r-------- 2088 bin/Makefile
+-r-------- 2089 bin/Makefile
 -r-x------ 0 bin/
 -r-x------ 41 bin/identifica
 -r-x------ 69 bin/consegna
@@ -48,7 +48,7 @@ EOF
 -r-------- 0 esercizio-1/input-1t.txt
 -r-------- 0 esercizio-1/output-1.txt
 -r-------- 0 esercizio-1/output-1t.txt
--r-------- 2088 bin/Makefile
+-r-------- 2089 bin/Makefile
 -r-x------ 0 bin/
 -rwx------ 0 esercizio-1/
 EOF
