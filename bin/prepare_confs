@@ -72,5 +72,4 @@ python -m tm.mkconf -vf "$filter" -b "$srcdir/conf.py" $tempdir/bundle "${srcdir
 
 echocol "Cleanup temp dir..."
 
-chmod -R u+rwX,go= $tempdir
-rm -rf $tempdir
+chmod -R u+rwx $tempdir; rm -rf $tempdir
