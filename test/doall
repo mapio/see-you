@@ -1,3 +1,10 @@
-#!/bin/bash
+#!/bin/bash -e
 
-./test/makefiles
+echocol() { echo -e "\033[32m*** $@...\033[0m"; }
+
+tests="makefiles"
+
+for t in $tests; do
+	echocol $t
+	./test/$t
+done
