@@ -3,11 +3,20 @@
 echocol() { echo -e "\033[32m*** $@...\033[0m"; }
 
 if [ ! -r ./var/tm.zip ]; then
-	echocol "Skipping tests depending on tristo-mietitore"
-	tests="makefiles"
-else
-	tests="makefiles prepare"
+	echocol "Installing tristo-mietitore"
+	curdir=$(pwd)
+	mkdir -p ./var/
+	cd ./var
+	git clone https://github.com/mapio/tristo-mietitore.git >/dev/null 2>&1
+	cd tristo-mietitore
+	./bin/mkdist
+	mv tm.zip ..
+	cd ..
+	rm -rf tristo-mietitore
+	cd $curdir
 fi
+
+tests="makefiles prepare"
 
 for t in $tests; do
 	echocol $t
