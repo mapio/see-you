@@ -5,7 +5,7 @@ echocol() { echo -ne "\033[31m$@...\033[0m "; }
 export EXERCISES_DIR=./test/srcdir
 ./bin/prepare_confs $EXERCISES_DIR >/dev/null 2>&1
 
-export PYTHONPATH=~/Documents/SCM/programming/eeg/tristo-mietitore
+export PYTHONPATH=./var/tm.zip
 
 echocol "Tristo mietitore"
 if diff <(
@@ -20,7 +20,7 @@ EOF
 -r-------- 0 esercizio-1/args-1.txt
 -r-------- 0 esercizio-1/input-1.txt
 -r-------- 0 esercizio-1/output-1.txt
--r-------- 1420 LEGGIMI.txt
+-r-------- 1475 LEGGIMI.txt
 -r-------- 2089 bin/Makefile
 -r-x------ 0 bin/
 -r-x------ 41 bin/identifica
