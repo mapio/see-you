@@ -15,7 +15,7 @@ l = {}
 execfile( '$EXERCISES_DIR-tm.py', l )
 lstar( l[ 'TAR_DATA' ] )
 EOF
-) | sort | awk '{print $1, $3, $6}' ) <(cat <<EOF
+) | sort | awk '{print $1, $3, $6}' ) <(cat <<EOF | sort
 -r-------- 0 esercizio-1/Testo.txt
 -r-------- 0 esercizio-1/args-1.txt
 -r-------- 0 esercizio-1/input-1.txt
@@ -41,7 +41,7 @@ l = {}
 execfile( '$EXERCISES_DIR-cu.py', l )
 lstar( l[ 'TAR_DATA' ] )
 EOF
-) | sort | awk '{print $1, $3, $6}' ) <(cat <<EOF
+) | sort | awk '{print $1, $3, $6}' ) <(cat <<EOF | sort
 -r-------- 0 esercizio-1/args-1.txt
 -r-------- 0 esercizio-1/args-1t.txt
 -r-------- 0 esercizio-1/input-1.txt
