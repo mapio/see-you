@@ -2,7 +2,7 @@
 
 echocol() { echo -e "\033[32m*** $@...\033[0m"; }
 
-if [ ! -r ./var/tm.zip ]; then
+if [ ! -r ./bin/tm ]; then
 	echocol "Installing tristo-mietitore"
 	curdir=$(pwd)
 	mkdir -p ./var/
@@ -10,7 +10,7 @@ if [ ! -r ./var/tm.zip ]; then
 	git clone https://github.com/mapio/tristo-mietitore.git >/dev/null 2>&1
 	cd tristo-mietitore
 	./bin/mkdist
-	mv tm.zip ..
+	mv ./bin/tm ../../bin
 	cd ..
 	rm -rf tristo-mietitore
 	cd $curdir

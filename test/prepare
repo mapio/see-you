@@ -5,7 +5,7 @@ echocol() { echo -ne "\033[31m$@...\033[0m "; }
 export EXERCISES_DIR=./test/srcdir
 ./bin/prepare_confs $EXERCISES_DIR >/dev/null 2>&1
 
-export PYTHONPATH=./var/tm.zip
+export PYTHONPATH=./bin/tm
 
 echocol "Tristo mietitore tar file"
 if diff <(
