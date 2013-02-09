@@ -1,5 +1,3 @@
 language: python
-python:
-  - "2.7"
-install: "echo nodeps"
+python: "2.7"
 script: ./test/doall
