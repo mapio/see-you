@@ -7,7 +7,7 @@ export EXERCISES_DIR=./test/srcdir
 
 export PYTHONPATH=./var/tm.zip
 
-echocol "Tristo mietitore"
+echocol "Tristo mietitore tar file"
 if diff <(
 ( python <<EOF
 from tm.mkconf import tar, untar, lstar
@@ -33,7 +33,7 @@ else
 	echo FAIL
 fi
 
-echocol "See You"
+echocol "See You tar file"
 if diff <(
 ( python <<EOF
 from tm.mkconf import tar, untar, lstar

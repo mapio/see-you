@@ -54,7 +54,7 @@ echocol "*** Generating the TM configuration file (base + tar + uids)..."
 cat "$srcdir/conf.py" > $tempdir/conf.py
 cat >> $tempdir/conf.py <<EOF
 
-CLIENT = '$HOME/.tm'
+CLIENT_PATH = '### home ###/.tm'
 
 ENVIRONMENT_SETUP = """
 export PATH="### home ###/bin":\$PATH
