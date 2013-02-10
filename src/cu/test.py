@@ -11,7 +11,7 @@ def test( uid, timestamp = None, result_dir = None, clean = None ):
 	if not result_dir: result_dir = UPLOAD_DIR
 	if not timestamp:
 		re = recompile( r'.*/([0-9]+)\.tar' )
-		timestamp = max( re.match( _ ).group( 1 ) for _ in glob( join( UPLOAD_DIR, uid, '*.tar' ) ) )
+		timestamp = max( re.match( _ ).group( 1 ) for _ in glob( join( UPLOAD_DIR, uid, '[0-9]*.tar' ) ) )
 	dest_dir = join( result_dir, uid, timestamp )
 	if isdir( dest_dir ):
 		if clean: rmrotree( dest_dir )
