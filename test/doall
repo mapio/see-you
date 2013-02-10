@@ -19,7 +19,7 @@ fi
 echocol mkdist
 ./bin/mkdist
 
-tests="makefiles prepare"
+tests="makefiles prepare simulate"
 
 for t in $tests; do
 	echocol $t
