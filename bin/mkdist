@@ -1,0 +1,30 @@
+#!/bin/bash -e
+
+echocol() { echo -e "\033[31m$@...\033[0m " >&2; }
+
+if [ -z "$1" ]; then
+    exec >/dev/null
+fi
+
+echocol "Setup dirs"
+
+tempdir=$(mktemp -d /tmp/tm-XXXXXXXXX) || exit 1
+mkdir -p $tempdir/dist
+
+echocol "Copying source files to dist"
+
+cp -rv ./src/{cu,__main__.py} $tempdir/dist
+
+echocol "Compiling and removing source files"
+
+python -m compileall $tempdir/dist
+find $tempdir/dist -name \*.py -exec rm {} \;
+
+echocol "Preparing zip file"
+
+( cd $tempdir/dist; zip -9r ../cu.zip . )
+echo '#!/usr/bin/env python' > $(pwd)/bin/cu
+cat $tempdir/cu.zip >> $(pwd)/bin/cu
+chmod u+rx $(pwd)/bin/cu
+
+rm -rf $tempdir
