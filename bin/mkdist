@@ -8,7 +8,7 @@ fi
 
 echocol "Setup dirs"
 
-tempdir=$(mktemp -d /tmp/tm-XXXXXXXXX) || exit 1
+tempdir=$(mktemp -d /tmp/cu-XXXXXXXXX) || exit 1
 mkdir -p $tempdir/dist
 
 echocol "Copying source files to dist"
