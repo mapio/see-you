@@ -2,4 +2,4 @@
 ^tm-conf.py$
 ^var$
 ^jars$
-^bin/tm$
+^bin/(cu|tm)$

@@ -3,22 +3,25 @@
 echocol() { echo -e "\033[31m$@\033[0m"; }
 
 srcdir="$1"
-
 if [ ! -d "$srcdir" ]; then
 	echo "Specify the source dir parameter"
 	exit 1
 fi
-# srcdir="${srcdir%%[/]*}" FIND A WAY TO REMOVE JUST THE TRAILING /
 
 if [ ! -d "$EXERCISES_DIR" ]; then
 	echo "Please set EXERCISES_DIR"
 	exit 1
 fi
 
-export SUPPORT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/support"
-export PYTHONPATH=$SUPPORT/../var/tm.zip
+export BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+export SUPPORT="$BASEDIR/support"
+export PATH="$BASEDIR/bin:$PATH"
 
-tempdir=$(mktemp -d /tmp/vulcan-XXXXXXXXX) || exit 1
+tempdir=$(mktemp -d /tmp/cu-XXXXXXXXX) || exit 1
+
+dstdir="$srcdir/pc"
+bn=$(basename "$srcdir")
+mkdir -p "$dstdir"
 
 echocol "*** Preparing TM tar directoroy..."
 
@@ -40,9 +43,9 @@ rm -f $tempdir/bundle/*/{soluzione*,*.[ch]}
 
 echocol "Adding readme and bins..."
 
-cp $SUPPORT/LEGGIMI.txt $tempdir/bundle/LEGGIMI.txt
+cp "$SUPPORT/LEGGIMI.txt" $tempdir/bundle/LEGGIMI.txt
 mkdir $tempdir/bundle/bin
-cp $SUPPORT/Makefile $SUPPORT/bin/{consegna,identifica} $tempdir/bundle/bin
+cp "$SUPPORT/Makefile" "$SUPPORT/bin/"{consegna,identifica} $tempdir/bundle/bin
 
 echocol "Fixing perms..."
 
@@ -63,13 +66,22 @@ export MAKEFILES="### home ###/bin/Makefile"
 EOF
 
 filter='^(bin/.*|LEGGIMI.txt|esercizio-[0-9]+/(Testo|(input|output|args)-[0-9]+)\.txt)$'
-./bin/tm mkconf -vf "$filter" -b $tempdir/conf.py -u "$srcdir/registered_uids.tsv" $tempdir/bundle "${srcdir}-tm.py"
+tm mkconf -vf "$filter" -b $tempdir/conf.py -u "$srcdir/registered_uids.tsv" $tempdir/bundle "$dstdir/$bn-tm.py"
 
-echocol "*** Generating the CU configuration file (base + tar + uids)..."
+echocol "*** Generating the CU configuration file (base + tar)..."
 
 filter='^(bin/Makefile|esercizio-[0-9]+/(input|output|args)-.+\.txt)$'
-./bin/tm mkconf -vf "$filter" -b "$srcdir/conf.py" $tempdir/bundle "${srcdir}-cu.py"
+tm mkconf -vf "$filter" -b "$srcdir/conf.py" $tempdir/bundle "$dstdir/$bn-cu.py"
 
-echocol "Cleanup temp dir..."
+echocol "*** Generating the ts (texts and solutions) tar..."
+
+mkdir -p "$tempdir/texts/$bn-ts"
+for e in $(cat "$srcdir/exercises.txt"); do
+	cp "$EXERCISES_DIR/$e/Testo.txt" "$tempdir/texts/$bn-ts/$e.txt"
+	cp "$EXERCISES_DIR/$e/soluzione.c" "$tempdir/texts/$bn-ts/$e.c"
+done
+tar -C $tempdir/texts -cvf "$dstdir/$bn-ts.tar" $bn-ts
+
+echocol "*** Cleanup temp dir..."
 
 chmod -R u+rwx $tempdir; rm -rf $tempdir

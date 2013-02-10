@@ -2,35 +2,44 @@
 
 echocol() { echo -ne "\033[31m$@...\033[0m "; }
 
-export EXERCISES_DIR=./test/srcdir
+tempdir=$(mktemp -d /tmp/cu-XXXXXXXXX) || exit 1
+
+cp -r ./test/srcdir $tempdir
+export EXERCISES_DIR=$tempdir/srcdir
 ./bin/prepare_confs $EXERCISES_DIR >/dev/null 2>&1
 
 export PYTHONPATH=./bin/tm
 
 echocol "Tristo mietitore tar file"
-if diff <(
+if diff -u <(
 ( python <<EOF
 from tm.mkconf import tar, untar, lstar
 l = {}
-execfile( '$EXERCISES_DIR-tm.py', l )
+execfile( '$EXERCISES_DIR/pc/srcdir-tm.py', l )
 lstar( l[ 'TAR_DATA' ] )
 EOF
-) | sort | awk '{print $1, $3, $6}' ) <(cat <<EOF | sort
+) | awk '{print $1, $3, $6}' | sort ) <(cat <<EOF | sort
 -r-------- 0 esercizio-1/Testo.txt
--r-------- 0 esercizio-1/args-1.txt
--r-------- 0 esercizio-1/input-1.txt
--r-------- 0 esercizio-1/output-1.txt
+-r-------- 0 esercizio-2/Testo.txt
 -r-------- 1475 LEGGIMI.txt
+-r-------- 2 esercizio-1/args-1.txt
+-r-------- 2 esercizio-1/input-1.txt
+-r-------- 2 esercizio-1/output-1.txt
+-r-------- 2 esercizio-2/args-1.txt
+-r-------- 2 esercizio-2/input-1.txt
+-r-------- 2 esercizio-2/output-1.txt
 -r-------- 2089 bin/Makefile
 -r-x------ 0 bin/
 -r-x------ 41 bin/identifica
 -r-x------ 69 bin/consegna
 -rwx------ 0 esercizio-1/
+-rwx------ 0 esercizio-2/
 EOF
 ); then
 	echo OK
 else
 	echo FAIL
+	exit 1
 fi
 
 echocol "See You tar file"
@@ -38,24 +47,32 @@ if diff <(
 ( python <<EOF
 from tm.mkconf import tar, untar, lstar
 l = {}
-execfile( '$EXERCISES_DIR-cu.py', l )
+execfile( '$EXERCISES_DIR/pc/srcdir-cu.py', l )
 lstar( l[ 'TAR_DATA' ] )
 EOF
-) | sort | awk '{print $1, $3, $6}' ) <(cat <<EOF | sort
--r-------- 0 esercizio-1/args-1.txt
--r-------- 0 esercizio-1/args-1t.txt
--r-------- 0 esercizio-1/input-1.txt
--r-------- 0 esercizio-1/input-1t.txt
--r-------- 0 esercizio-1/output-1.txt
--r-------- 0 esercizio-1/output-1t.txt
+) | awk '{print $1, $3, $6}' | sort ) <(cat <<EOF | sort
+-r-------- 2 esercizio-1/args-1.txt
+-r-------- 2 esercizio-1/args-1t.txt
+-r-------- 2 esercizio-1/input-1.txt
+-r-------- 2 esercizio-1/input-1t.txt
+-r-------- 2 esercizio-1/output-1.txt
+-r-------- 2 esercizio-1/output-1t.txt
+-r-------- 2 esercizio-2/args-1.txt
+-r-------- 2 esercizio-2/args-1t.txt
+-r-------- 2 esercizio-2/input-1.txt
+-r-------- 2 esercizio-2/input-1t.txt
+-r-------- 2 esercizio-2/output-1.txt
+-r-------- 2 esercizio-2/output-1t.txt
 -r-------- 2089 bin/Makefile
 -r-x------ 0 bin/
 -rwx------ 0 esercizio-1/
+-rwx------ 0 esercizio-2/
 EOF
 ); then
 	echo OK
 else
 	echo FAIL
+	exit 1
 fi
 
-rm -f $EXERCISES_DIR-??.py
+rm -rf $tempdir

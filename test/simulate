@@ -1,0 +1,148 @@
+#!/bin/bash
+
+echocol() { echo -ne "\033[31m$@...\033[0m\n"; }
+
+assert() {
+	echo -ne "\033[34m$1...\033[0m "
+	if diff $2 $3; then
+		echo OK
+	else
+		echo FAIL
+		exit 1
+	fi
+}
+
+if [ -d /tmp/cu_test ]; then
+	chmod -R u+w /tmp/cu_test
+	rm -rf /tmp/cu_test
+fi
+mkdir -p /tmp/cu_test/{student,teacher}
+
+echocol "Setup"
+
+cp ./bin/{cu,tm} /tmp/cu_test/teacher
+
+export EXERCISES_DIR=./test/srcdir
+./bin/prepare_confs $EXERCISES_DIR >/dev/null 2>&1
+
+mv ./test/srcdir/pc /tmp/cu_test/teacher
+export TM_SETTINGS=/tmp/cu_test/teacher/pc/srcdir-tm.py
+export CU_SETTINGS=/tmp/cu_test/teacher/pc/srcdir-cu.py
+
+# Start the server (pre-kill all other python stuff: this is not safe!)
+killall -m '[Pp]ython' 2>/dev/null || true
+/tmp/cu_test/teacher/tm web > /tmp/cu_test/teacher/outerr 2>&1 &
+echo -n "Waiting for server startup"
+attempts=10
+while [[ $attempts > 0 ]] && ! grep -qE "Running on http" /tmp/cu_test/teacher/outerr; do
+	echo -n .
+	sleep 1
+	attempts=$(( $attempts - 1 ))
+done
+if [[ $attempts > 0 ]]; then
+	echo ". started!"
+else
+	echo " FAILED TO START!"
+	exit 1
+fi
+
+echocol "Student side"
+(
+
+sign ()  { eval $(python -c "from urllib2 import urlopen; exec urlopen( 'http://localhost:8000/$1' ).read()"); }
+sign 123
+
+assert "Home setup" <(find /tmp/cu_test/student/ | sort) <(cat <<EOF | sort
+/tmp/cu_test/student/
+/tmp/cu_test/student/.tm
+/tmp/cu_test/student/bin
+/tmp/cu_test/student/bin/consegna
+/tmp/cu_test/student/bin/identifica
+/tmp/cu_test/student/bin/Makefile
+/tmp/cu_test/student/esercizio-1
+/tmp/cu_test/student/esercizio-1/args-1.txt
+/tmp/cu_test/student/esercizio-1/input-1.txt
+/tmp/cu_test/student/esercizio-1/output-1.txt
+/tmp/cu_test/student/esercizio-1/Testo.txt
+/tmp/cu_test/student/esercizio-2
+/tmp/cu_test/student/esercizio-2/args-1.txt
+/tmp/cu_test/student/esercizio-2/input-1.txt
+/tmp/cu_test/student/esercizio-2/output-1.txt
+/tmp/cu_test/student/esercizio-2/Testo.txt
+/tmp/cu_test/student/LEGGIMI.txt
+EOF)
+
+cp ./test/srcdir/exercise/soluzione.c /tmp/cu_test/student/esercizio-1
+cd /tmp/cu_test/student/esercizio-1
+
+assert "Make test 1" <(make test) <(cat <<EOF
+gcc -Wall -pedantic -ansi -c -o soluzione.o soluzione.c
+gcc soluzione.o -o soluzione
+./soluzione \$(cat args-1.txt) < input-1.txt > actual-1.txt
+diff -b output-1.txt actual-1.txt > diffs-1.txt
+EOF)
+
+assert "Upload 1" <(consegna) <(cat <<EOF
+esercizio-1
+esercizio-1/soluzione.c
+EOF)
+
+echo 'int main( void ) { return 0; }' > /tmp/cu_test/student/esercizio-2/soluzione2.c
+cd /tmp/cu_test/student/esercizio-2
+
+assert "make test 2" <(make test red='echo' reset='echo' 2>&1) <(cat <<EOF
+gcc -Wall -pedantic -ansi -c -o soluzione2.o soluzione2.c
+gcc soluzione2.o -o soluzione
+./soluzione \$(cat args-1.txt) < input-1.txt > actual-1.txt
+diff -b output-1.txt actual-1.txt > diffs-1.txt
+
+0a1
+> 2
+
+make: *** [diffs-1.txt] Error 1
+EOF)
+
+assert "Upload 2" <(consegna) <(cat <<EOF
+esercizio-1
+esercizio-1/soluzione.c
+esercizio-2
+esercizio-2/soluzione2.c
+EOF)
+
+
+sign 456
+(
+rm -rf /tmp/cu_test/student/*/*.c
+echo 'int main( void ) { return 0; }' > /tmp/cu_test/student/esercizio-2/soluzione2.c
+cd /tmp/cu_test/student/esercizio-2
+make test
+consegna
+) > /dev/null 2>&1
+
+)
+
+echocol "Teacher side"
+
+assert "Events" <(cut -d ' ' -f3- /tmp/cu_test/uploads/EVENTS.log) <(cat <<EOF
+Start
+Signed: 123@127.0.0.1
+Download: 123@127.0.0.1
+Upload: 123@127.0.0.1
+Upload: 123@127.0.0.1
+Signed: 456@127.0.0.1
+Download: 456@127.0.0.1
+Upload: 456@127.0.0.1
+EOF)
+
+
+assert "See you" <(/tmp/cu_test/teacher/cu | cut -b -48) <(cat <<EOF
+Test for 123: saved in /tmp/cu_test/uploads/123/
+Test for 456: saved in /tmp/cu_test/uploads/456/
+EOF)
+
+assert "Tests" <(ls -1 /tmp/cu_test/uploads/*/latest/TEST*) <(cat <<EOF
+/tmp/cu_test/uploads/123/latest/TEST-123.esercizio-1.xml
+/tmp/cu_test/uploads/123/latest/TEST-123.esercizio-2.xml
+/tmp/cu_test/uploads/456/latest/TEST-456.esercizio-1.xml
+/tmp/cu_test/uploads/456/latest/TEST-456.esercizio-2.xml
+EOF)

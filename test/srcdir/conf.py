@@ -4,6 +4,6 @@ MAX_CONTENT_LENGTH = 16 * 1024 * 1024
 
 LANG = 'it'
 
-HOME = '/tmp/vulcan_test/home'
+HOME = '/tmp/cu_test/student'
 
-UPLOAD_DIR = '/tmp/vulcan_test/uploads'
+UPLOAD_DIR = '/tmp/cu_test/uploads'

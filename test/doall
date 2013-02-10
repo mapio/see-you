@@ -3,7 +3,7 @@
 echocol() { echo -e "\033[32m*** $@...\033[0m"; }
 
 if [ ! -r ./bin/tm ]; then
-	echocol "Installing tristo-mietitore"
+	echocol "mkdist tm"
 	curdir=$(pwd)
 	mkdir -p ./var/
 	cd ./var
@@ -15,6 +15,9 @@ if [ ! -r ./bin/tm ]; then
 	rm -rf tristo-mietitore
 	cd $curdir
 fi
+
+echocol mkdist
+./bin/mkdist
 
 tests="makefiles prepare"
 

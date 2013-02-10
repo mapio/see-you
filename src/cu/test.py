@@ -25,9 +25,9 @@ def test( uid, timestamp = None, result_dir = None, clean = None ):
 	symlink( timestamp, latest )
 	return 'saved in {0} by {1}'.format( dest_dir, tr_as_str )
 
-if __name__ == '__main__':
+def main():
 
-	parser = ArgumentParser()
+	parser = ArgumentParser( prog = 'cu' )
 	parser.add_argument( '--uid', help = 'The UID to test (default: all)' )
 	parser.add_argument( '--result_dir', help = 'The destination directory where to copy the results directory (default: UPLOAD_DIR)' )
 	parser.add_argument( '--timestamp', help = 'The timestamp of the upload to test (default: latest)' )
@@ -37,3 +37,6 @@ if __name__ == '__main__':
 	if not args.uid: re = recompile( r'.*/(.*)/.*\.tar' )
 	for uid in [ args.uid ] if args.uid else set( re.match( _ ).group( 1 ) for _ in glob( join( UPLOAD_DIR, '*', '*.tar' ) ) ):
 		print 'Test for {0}: {1}'.format( uid, test( uid, args.timestamp, args.result_dir, args.clean ) )
+
+if __name__ == '__main__':
+	main()
