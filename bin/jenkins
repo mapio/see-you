@@ -1,4 +1,64 @@
 #!/bin/bash
 
-export JENKINS_HOME="$(pwd)/var/jenkins_home"
-java -jar ./jars/jenkins.war --httpListenAddress=127.0.0.1 --argumentsRealm.passwd.admin=pippo14 --argumentsRealm.roles.admin=admin 2>./var/jenkins.err >./var/jenkins.out & echo $! > ./var/jenkins.pid
+echocol() { echo -e "\033[31m$@\033[0m"; }
+
+if [ -z "$CU_SETTINGS" ]; then
+	echo "You must define CU_SETTINGS brefore running Jenkins"
+	exit 1
+fi
+
+USER=admin
+PASSWORD=simple_one # change this!
+
+export CU_CMD=$(pwd)/bin/cu
+export JENKINS_HOME="$(pwd)/jenkins/home"
+export CLIENT_JAR="$JENKINS_HOME/war/WEB-INF/jenkins-cli.jar"
+
+if [ ! -d ./xenkins ]; then
+	mkdir -p ./jenkins
+	echocol "Installing Jenkins jar"
+	curl -L -O ./jenkins/jenkins.war http://mirrors.jenkins-ci.org/war/latest/jenkins.war
+	echocol "Generating the SSH admin key for the jenkins-cli"
+	ssh-keygen -N '' -f ./jenkins/admin_rsa -C'Jenkins Admin'
+	echocol "Please, once jenkins starts follow these instrucions to secure it"
+	echo "Go to http://localhost:8080/configureSecurity/ and check the follwing:"
+	echo -e "\t'Enable security',"
+	echo -e "\t'Delegate to servlet container',"
+	echo -e "\t'Logged-in users can do anything',"
+	echo "hence login as user '$USER' with password '$PASSWORD'."
+	echo "Go to http://localhost:8080/me/configure and copy in:"
+	echo -e "\t'SSH Public Keys'"
+	echo "the contents of ./jenkins/admin_rsa.pub file."
+	echocol "Creating the client script in ./jenkins/cli"
+	cat > ./jenkins/cli <<-EOF
+	#!/bin/bash
+	java -jar $CLIENT_JAR -i $(pwd)/jenkins/admin_rsa -s http://localhost:8080/ "\$@"
+	EOF
+	chmod u+x ./jenkins/cli
+
+fi
+
+echocol "Starting Jenkins, with the following configuration:"
+echo -e "\tJENKINS_HOME='$JENKINS_HOME',"
+echo -e "\tUSER='$USER',"
+echo -e "\tPASSWORD='$PASSWORD'."
+
+rm -f ./jenkins/outerr
+java -jar ./jenkins/jenkins.war --httpListenAddress=127.0.0.1 --argumentsRealm.passwd.admin="$PASSWORD" --argumentsRealm.roles.$USER=$USER >./jenkins/outerr 2>&1 & echo $! > ./jenkins/pid
+
+echo -n "Waiting for jenkins startup"
+attempts=30
+while [[ $attempts > 0 ]] && ! grep -qE "Jenkins is fully up and running" ./jenkins/outerr; do
+	echo -n .
+	sleep 1
+	attempts=$(( $attempts - 1 ))
+done
+if [[ $attempts > 0 ]]; then
+	echo ". started!"
+else
+	echo " FAILED TO START!"
+	exit 1
+fi
+
+echocol "Testing the client"
+./jenkins/cli who-am-i
