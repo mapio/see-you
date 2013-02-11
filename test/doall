@@ -5,15 +5,14 @@ echocol() { echo -e "\033[32m*** $@...\033[0m"; }
 if [ ! -r ./bin/tm ]; then
 	echocol "mkdist tm"
 	curdir=$(pwd)
-	mkdir -p ./var/
-	cd ./var
+	tempdir=$(mktemp -d /tmp/cu-XXXXXXXXX) || exit 1
+	cd $tempdir
 	git clone https://github.com/mapio/tristo-mietitore.git >/dev/null 2>&1
 	cd tristo-mietitore
 	./bin/mkdist
-	mv ./bin/tm ../../bin
-	cd ..
-	rm -rf tristo-mietitore
+	mv ./bin/tm $curdir/bin/
 	cd $curdir
+	rm -rf $tempdir
 fi
 
 echocol mkdist
