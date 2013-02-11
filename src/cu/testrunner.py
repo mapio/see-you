@@ -1,5 +1,4 @@
 from collections import namedtuple
-from datetime import datetime
 from glob import glob
 from os import chmod, unlink
 from os.path import join, dirname
@@ -11,9 +10,8 @@ from tarfile import TarFile
 from tempfile import mkdtemp
 from time import time
 
-from . import TAR_DATA, UPLOAD_DIR
+from . import TAR_DATA, UPLOAD_DIR, isots
 
-isots = lambda timestamp: datetime.fromtimestamp( int( timestamp ) / 1000 ).isoformat()
 asciify = lambda s: ''.join( map( lambda c: c if c in printable else r'\x{0:0x}'.format( ord( c ) ), s ) )
 
 MakeResult = namedtuple( 'MakeResult', 'elapsed output error' )

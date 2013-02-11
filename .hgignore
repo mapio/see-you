@@ -1,5 +1,4 @@
 ^minos-conf.py$
 ^tm-conf.py$
-^var$
-^jars$
+^jenkins$
 ^bin/(cu|tm)$

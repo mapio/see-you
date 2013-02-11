@@ -14,10 +14,10 @@ export CU_CMD=$(pwd)/bin/cu
 export JENKINS_HOME="$(pwd)/jenkins/home"
 export CLIENT_JAR="$JENKINS_HOME/war/WEB-INF/jenkins-cli.jar"
 
-if [ ! -d ./xenkins ]; then
+if [ ! -d ./jenkins ]; then
 	mkdir -p ./jenkins
 	echocol "Installing Jenkins jar"
-	curl -L -O ./jenkins/jenkins.war http://mirrors.jenkins-ci.org/war/latest/jenkins.war
+	curl -L http://mirrors.jenkins-ci.org/war/latest/jenkins.war > ./jenkins/jenkins.war
 	echocol "Generating the SSH admin key for the jenkins-cli"
 	ssh-keygen -N '' -f ./jenkins/admin_rsa -C'Jenkins Admin'
 	echocol "Please, once jenkins starts follow these instrucions to secure it"

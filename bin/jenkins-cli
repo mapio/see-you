@@ -1,3 +1,0 @@
-#!/bin/bash
-
-java -jar ./jars/jenkins-cli.jar -s http://localhost:8080/ -i ./etc/jenkins_rsa "$@"
