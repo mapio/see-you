@@ -4,7 +4,7 @@ from os import symlink, unlink
 from os.path import join, islink, isdir
 from re import compile as recompile
 
-from . import UPLOAD_DIR
+from . import UPLOAD_DIR, all_uids
 from .testrunner import TestRunner, isots, rmrotree
 
 def test( uid, timestamp = None, result_dir = None, clean = None ):
@@ -34,8 +34,7 @@ def main():
 	parser.add_argument( '--clean', action='store_true', help = 'Whether to clean the destination result directory first' )
 	args = parser.parse_args()
 
-	if not args.uid: re = recompile( r'.*/(.*)/.*\.tar' )
-	for uid in [ args.uid ] if args.uid else set( re.match( _ ).group( 1 ) for _ in glob( join( UPLOAD_DIR, '*', '*.tar' ) ) ):
+	for uid in [ args.uid ] if args.uid else all_uids():
 		print 'Test for {0}: {1}'.format( uid, test( uid, args.timestamp, args.result_dir, args.clean ) )
 
 if __name__ == '__main__':
