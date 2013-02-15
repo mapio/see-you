@@ -54,7 +54,7 @@ class TestCase( object ):
 		if self.stderr:
 			content.append( _wrap( 'system-err', self.stderr ) )
 		return '\t<testcase time="{0}" classname="{1}" name="{2}"'.format( self.time, classname, self.name ) + (
-			'>{0}</testcase>\n'.format( '\n\t'.join( content ) ) if content else '/>' )
+			'>{0}</testcase>'.format( '\n\t'.join( content ) ) if content else '/>' )
 
 class TestRunner( object ):
 
@@ -163,7 +163,7 @@ class TestRunner( object ):
 				out.write( '<?xml version="1.0" encoding="UTF-8" ?>\n' )
 				out.write( '<testsuite failures="{0}" time="{1}" errors="{2}" skipped="0" tests="{3}" name="{4}" timestamp="{5}" hostname="localhost">\n'.format(
 					failures, elapsed, errors, tests, classname, isots( self.timestamp ) ) )
-				for tc in results: out.write( tc.toxml( classname ) )
+				for tc in results: out.write( tc.toxml( classname ) + '\n' )
 				out.write( '</testsuite>\n' )
 
 	def saveto( self, dest_dir ):
