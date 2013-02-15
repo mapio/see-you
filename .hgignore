@@ -2,3 +2,4 @@
 ^tm-conf.py$
 ^jenkins$
 ^bin/(cu|tm)$
+^local$
