@@ -35,8 +35,8 @@ class TestCase( object ):
 		self.time = time
 		self.failure = failure
 		self.error = error
-		self.stdout = stderr
-		self.stderr = stdout
+		self.stdout = stdout
+		self.stderr = stderr
 
 	def toxml( self, classname ):
 		def _wrap( elem, cont, type_ = None ):
