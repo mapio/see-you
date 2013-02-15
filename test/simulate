@@ -22,10 +22,11 @@ echocol "Setup"
 
 cp ./bin/{cu,tm} /tmp/cu_test/teacher
 
-export EXERCISES_DIR=./test/srcdir
+export TEST="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/test"
+export EXERCISES_DIR=$TEST/srcdir
 ./bin/prepare_confs $EXERCISES_DIR >/dev/null 2>&1
 
-mv ./test/srcdir/pc /tmp/cu_test/teacher
+mv $TEST/srcdir/pc /tmp/cu_test/teacher
 export TM_SETTINGS=/tmp/cu_test/teacher/pc/srcdir-tm.py
 export CU_SETTINGS=/tmp/cu_test/teacher/pc/srcdir-cu.py
 
@@ -50,6 +51,7 @@ echocol "Student side"
 (
 
 sign ()  { eval $(python -c "from urllib2 import urlopen; exec urlopen( 'http://localhost:8000/$1' ).read()"); }
+
 sign 123
 
 assert "Home setup" <(find /tmp/cu_test/student/ | sort) <(cat <<EOF | sort
@@ -72,7 +74,7 @@ assert "Home setup" <(find /tmp/cu_test/student/ | sort) <(cat <<EOF | sort
 /tmp/cu_test/student/LEGGIMI.txt
 EOF)
 
-cp ./test/srcdir/exercise/soluzione.c /tmp/cu_test/student/esercizio-1
+cp $TEST/srcdir/exercise/soluzione.c /tmp/cu_test/student/esercizio-1
 cd /tmp/cu_test/student/esercizio-1
 
 assert "Make test 1" <(make test) <(cat <<EOF
@@ -111,8 +113,10 @@ EOF)
 
 
 sign 456
+
 (
-rm -rf /tmp/cu_test/student/*/*.c
+rm -rf /tmp/cu_test/student/*/soluzione*
+sed 's/return 0/return 1/' < $TEST/srcdir/exercise/soluzione.c > /tmp/cu_test/student/esercizio-1/soluzione1.c
 echo 'int main( void ) { return 0; }' > /tmp/cu_test/student/esercizio-2/soluzione2.c
 cd /tmp/cu_test/student/esercizio-2
 make test
@@ -134,7 +138,6 @@ Download: 456@127.0.0.1
 Upload: 456@127.0.0.1
 EOF)
 
-
 assert "See you" <(/tmp/cu_test/teacher/cu test| cut -b -48) <(cat <<EOF
 Test for 123: saved in /tmp/cu_test/uploads/123/
 Test for 456: saved in /tmp/cu_test/uploads/456/
@@ -146,3 +149,6 @@ assert "Tests" <(ls -1 /tmp/cu_test/uploads/*/latest/TEST*) <(cat <<EOF
 /tmp/cu_test/uploads/456/latest/TEST-456.esercizio-1.xml
 /tmp/cu_test/uploads/456/latest/TEST-456.esercizio-2.xml
 EOF)
+
+assert "Test (content)" <(grep -l 'type=' /tmp/cu_test/uploads/456/latest/TEST-456.esercizio-*) \
+	<(echo "/tmp/cu_test/uploads/456/latest/TEST-456.esercizio-2.xml") # soluzione1.c returns 1, but is correct...

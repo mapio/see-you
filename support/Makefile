@@ -65,16 +65,17 @@ actual-%.txt: input-%.txt args-%.txt $(TARGET)
 			$(blue);\
 			echo execution timeout 1>&2;\
 			$(reset);\
+			rm $@;\
 		elif grep -Eqi 'bash: line 1:.*Segmentation fault' .errors-$*; then\
 			$(red);\
 			echo segmentation fault 1>&2;\
 			$(reset);\
+			rm $@;\
 		else\
 			$(red);\
 			echo non-zero return value 1>&2;\
 			$(reset);\
 		fi;\
-		rm $@;\
 		if $(exit_on_fail); then exit 1; fi;\
 	else\
 		> .errors-$*;\

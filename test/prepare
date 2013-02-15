@@ -28,12 +28,13 @@ EOF
 -r-------- 2 esercizio-2/args-1.txt
 -r-------- 2 esercizio-2/input-1.txt
 -r-------- 2 esercizio-2/output-1.txt
--r-------- 2089 bin/Makefile
+-r-------- 2167 bin/Makefile
 -r-x------ 0 bin/
 -r-x------ 41 bin/identifica
 -r-x------ 69 bin/consegna
 -rwx------ 0 esercizio-1/
 -rwx------ 0 esercizio-2/
+-rwx------ 0 esercizio-3/
 EOF
 ); then
 	echo OK
@@ -63,7 +64,7 @@ EOF
 -r-------- 2 esercizio-2/input-1t.txt
 -r-------- 2 esercizio-2/output-1.txt
 -r-------- 2 esercizio-2/output-1t.txt
--r-------- 2089 bin/Makefile
+-r-------- 2167 bin/Makefile
 -r-x------ 0 bin/
 -rwx------ 0 esercizio-1/
 -rwx------ 0 esercizio-2/
