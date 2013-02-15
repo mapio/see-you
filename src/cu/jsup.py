@@ -1,8 +1,8 @@
+from argparse import ArgumentParser
 from os.path import join
 from subprocess import Popen, PIPE
 
-from .. import UPLOAD_DIR, all_uids
-from . import JENKINS_CLI
+from . import UPLOAD_DIR, all_uids
 
 JENKINS_JOB_TEMPLATE = """
 <?xml version='1.0' encoding='UTF-8'?>
@@ -50,8 +50,12 @@ JENKINS_JOB_TEMPLATE = """
 """
 
 def main():
+	parser = ArgumentParser( prog = 'cu test' )
+	parser.add_argument( 'jenkins_cli', help = 'The local Jenkins cli script' )
+	args = parser.parse_args()
+
 	for uid in all_uids():
 		print "Creating job for uid: {0}".format( uid )
 		with ( open( join( UPLOAD_DIR, uid, 'SIGNATURE.tsv' ) ) ) as f: description = f.read().strip();
-		p = Popen( [ JENKINS_CLI, 'create-job', uid ], stdin = PIPE, stdout = PIPE )
+		p = Popen( [ args.jenkins_cli, 'create-job', uid ], stdin = PIPE, stdout = PIPE )
 		p.communicate( JENKINS_JOB_TEMPLATE.format( description = description ) )
