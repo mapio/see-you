@@ -4,7 +4,6 @@ from os import chmod, unlink
 from os.path import join, dirname
 from re import compile as recompile
 from shutil import copytree, rmtree
-from string import printable
 from subprocess import check_output, STDOUT, CalledProcessError
 from tarfile import TarFile
 from tempfile import mkdtemp
@@ -12,7 +11,9 @@ from time import time
 
 from . import TAR_DATA, UPLOAD_DIR, isots
 
-asciify = lambda s: ''.join( map( lambda c: c if c in printable else r'\x{0:0x}'.format( ord( c ) ), s ) )
+CDATA_ALLOWED = frozenset( '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r' )
+
+asciify = lambda s: ''.join( map( lambda c: c if c in CDATA_ALLOWED else r'\x{0:0x}'.format( ord( c ) ), s ) )
 
 MakeResult = namedtuple( 'MakeResult', 'elapsed output error' )
 
