@@ -2,10 +2,10 @@
 
 assert() {
 	echo -ne "\033[31m$1...\033[0m "
-	rm -f err
+	rm -f err diff-*
 	if make -e pulisci test $2 exit_on_fail=false > /dev/null 2> err; then
 		if [ -z "$4" ] || grep -q "$4" err; then
-			res="$(diff output-0.txt actual-0.txt 2>/dev/null | grep -E '^(<|>)')"
+			res="$(diff output-0.txt actual-0.txt 2>/dev/null | grep -E '^(<|>)' | tr \\n \#)"
 			if [ "$res" == "$3" ]; then
 				echo -n OK
 			else
@@ -26,7 +26,7 @@ assert() {
 			echo 'NOT FAILED [make]'
 		else
 			if [ -z "$4" ] ||  grep -q "$4" err; then
-				res="$(diff output-0.txt actual-0.txt 2>/dev/null | grep -E '^(<|>)')"
+				res="$(diff output-0.txt actual-0.txt 2>/dev/null | grep -E '^(<|>)' | tr \\n \#)"
 				if [ "$res" == "$3" ]; then
 					echo OK.
 				else
@@ -54,10 +54,13 @@ echo -e '#include <stdio.h>\nint main( void ) { printf( "AB" ); return 0; }' > s
 assert "No error" "" "" "" NF
 
 echo 'int main( void ) { return 0; }' > soluzione.c
-assert "Diff" "" "< AB"
+assert "Diff" "" "< AB#"
 
-echo 'int main( void ) { return 1; }' > soluzione.c
-assert "Retval" "" "" "non-zero return value"
+echo -e '#include <stdio.h>\nint main( void ) { printf( "X" ); return 1; }' > soluzione.c
+assert "Retval (diff)" "" "< AB#> X#" "non-zero return value"
+
+echo -e '#include <stdio.h>\nint main( void ) { printf( "AB" ); return 1; }' > soluzione.c
+assert "Retval (nodiff)" "" "" "non-zero return value"
 
 echo 'int main( void ) { for (;;); return 0; }' > soluzione.c
 assert "Timeout" "" "" "execution timeout"
