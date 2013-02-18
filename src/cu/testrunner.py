@@ -1,7 +1,8 @@
 from collections import namedtuple
+from json import dumps
 from glob import glob
 from os import chmod, unlink
-from os.path import join, dirname
+from os.path import join, dirname, basename
 from re import compile as recompile
 from shutil import copytree, rmtree
 from subprocess import check_output, STDOUT, CalledProcessError
@@ -28,7 +29,7 @@ def rmrotree( path ):
 
 class TestCase( object ):
 
-	COMPILE, EXECUTION, DIFF = 'compile', 'execution', 'diff'
+	COMPILE, EXECUTION, DIFF, OK = 'compile', 'execution', 'diff', 'ok'
 
 	def __init__( self, name, type_, time = 0, failure = None, error = None, stdout = None, stderr = None ):
 		self.name = name
@@ -38,6 +39,16 @@ class TestCase( object ):
 		self.error = error
 		self.stdout = stdout
 		self.stderr = stderr
+
+	def tojs( self ):
+		return {
+			'name': self.name,
+			'type': self.type,
+			'failure': self.failure,
+			'error': self.error,
+			'stdout': self.stdout,
+			'stderr': self.stderr
+		}
 
 	def toxml( self, classname ):
 		def _wrap( elem, cont, type_ = None ):
@@ -73,6 +84,8 @@ class TestRunner( object ):
 			cases_map[ re.match( path ).group( 1 ) ] = (
 				re.match( input_file_path ).group( 3 ) for input_file_path in glob( join( path, 'input-*.txt' ) )
 			)
+		with open( join( UPLOAD_DIR, uid, 'SIGNATURE.tsv' ), 'r' ) as f: signature = f.read()
+		self.signature = signature.strip().split( '\t' )
 		self.uid = uid
 		self.timestamp = timestamp
 		self.temp_dir = temp_dir
@@ -116,6 +129,12 @@ class TestRunner( object ):
 			return MakeResult( elapsed, stdout, stderr )
 		self.makes_map = dict( ( name, _make( name ) ) for name in self.cases_map.keys() )
 
+	def getsrc( self, exercise ):
+		res = {}
+		for fp in glob( join( self.temp_dir, exercise, '*.[ch]' ) ):
+			with open( fp, 'r' ) as f: res[ basename( fp ) ] = unicode( f.read(), errors = 'replace' )
+		return res
+
 	def getres( self, exercise, case_num ):
 		def _r( exercise, path, case_num ):
 			with open( join( self.temp_dir, exercise, path.format( case_num ) ) ) as f: data = unicode( f.read(), errors = 'replace' )
@@ -146,9 +165,24 @@ class TestRunner( object ):
 						if diffs:
 							ts.append( TestCase( case, TestCase.DIFF, failure = diffs, stdout = actual ) )
 						else:
-							ts.append( TestCase( case, TestCase.DIFF ) )
+							ts.append( TestCase( case, TestCase.OK ) )
 			suites_map[ exercise ] = tuple( ts )
 		self.suites_map = suites_map
+
+	def tojs( self ):
+		if not self.suites_map: self.collect()
+		exs = {}
+		for exercise, results in self.suites_map.items():
+			exs[ exercise ] = {
+				'cases': [ tc.tojs() for tc in results ],
+				'sources': self.getsrc( exercise )
+			}
+		res = {
+			'signature': self.signature,
+			'exercises': exs
+		}
+		with open( join( self.temp_dir, 'results.js' ), 'w' ) as out: out.write( "results[ '{0}' ] = {1};\n".format( self.uid, dumps( res ) ) );
+		return res
 
 	# based on http://windyroad.org/dl/Open%20Source/JUnit.xsd
 	def toxml( self ):

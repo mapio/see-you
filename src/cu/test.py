@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from json import dumps
 from os import symlink, unlink
 from os.path import join, islink, isdir
 from subprocess import check_call
@@ -6,7 +7,7 @@ from subprocess import check_call
 from . import UPLOAD_DIR, all_uids, all_timestamps
 from .testrunner import TestRunner, isots, rmrotree
 
-def run( uid, timestamp = None, result_dir = None, clean = None ):
+def run( uid, timestamp = None, result_dir = None, clean = None, js = None ):
 	if not result_dir: result_dir = UPLOAD_DIR
 	if not timestamp: timestamp = max( all_timestamps( uid ) )
 	dest_dir = join( result_dir, uid, timestamp )
@@ -15,6 +16,7 @@ def run( uid, timestamp = None, result_dir = None, clean = None ):
 		else: return 'skipped ({0} already exists, corresponding to time {1})'.format( dest_dir, isots( timestamp ) )
 	with TestRunner( uid, timestamp ) as tr:
 		tr.toxml()
+		if js is not None: js[ uid ] = tr.tojs()
 		tr.saveto( dest_dir )
 		tr_as_str = str( tr )
 	latest = join( result_dir, uid, 'latest' )
@@ -40,12 +42,15 @@ def main():
 	parser.add_argument( '--result_dir', help = 'The destination directory where to copy the results directory (default: UPLOAD_DIR)' )
 	parser.add_argument( '--timestamp', help = 'The timestamp of the upload to test (default: latest)' )
 	parser.add_argument( '--clean', action='store_true', help = 'Whether to clean the destination result directory first' )
+	parser.add_argument( '--js', action='store_true', help = 'Whether to generate also js output (to be used with the viewer), implies clean' )
 	args = parser.parse_args()
 
 	if args.jenkins_cli:
 		for uid in [ args.uid ] if args.uid else all_uids():
 			print 'Build for {0}: {1}'.format( uid, build( args.result_dir, args.jenkins_cli, uid, args.timestamp ) )
 	else:
+		js = {} if args.js else None
 		for uid in [ args.uid ] if args.uid else all_uids():
-			print 'Test for {0}: {1}'.format( uid, run( uid, args.timestamp, args.result_dir, args.clean ) )
-
+			print 'Test for {0}: {1}'.format( uid, run( uid, args.timestamp, args.result_dir, args.clean or args.js, js ) )
+		if args.js:
+			with open( join( args.result_dir, 'results.js' ), 'w' ) as out: out.write( 'var results = {0};\n'.format( dumps( js ) ) )
