@@ -10,6 +10,7 @@ DIFFS = $(INPUTS:input-%.txt=diffs-%.txt)
 compile = $(CC) $(CFLAGS) -c -o $@ $<
 link = $(CC) $^ -o $@
 test = ./soluzione $$\(cat args-$*.txt\) \< $< \> $@
+max_output = 4096
 
 exit_on_fail = true
 
@@ -60,24 +61,28 @@ $(TARGET): $(OBJECTS)
 actual-%.txt: input-%.txt args-%.txt $(TARGET)
 	@rm -f .errors-$* $@
 	@echo $(test)
-	@if ! bash -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< > $@" 2> .errors-$*; then\
+	@if ! bash -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< > .$@" 2> .errors-$*; then\
 		if grep -Eqi 'bash: line 1:.*(Killed|Cputime limit exceeded)' .errors-$*; then\
 			$(blue);\
 			echo execution timeout 1>&2;\
 			$(reset);\
-			rm $@;\
+			rm .$@;\
 		elif grep -Eqi 'bash: line 1:.*Segmentation fault' .errors-$*; then\
 			$(red);\
 			echo segmentation fault 1>&2;\
 			$(reset);\
-			rm $@;\
+			rm .$@;\
 		else\
 			$(red);\
 			echo non-zero return value 1>&2;\
 			$(reset);\
 		fi;\
+		head -c $(max_output) < .$@ > $@;\
+		rm -f .$@;\
 		if $(exit_on_fail); then exit 1; fi;\
 	else\
+		head -c $(max_output) < .$@ > $@;\
+		rm -f .$@;\
 		> .errors-$*;\
 	fi
 

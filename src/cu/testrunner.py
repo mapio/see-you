@@ -13,6 +13,7 @@ from time import time
 from . import TAR_DATA, UPLOAD_DIR, isots
 
 CDATA_ALLOWED = frozenset( '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r' )
+MAX_RESULT_LENGTH = 4096
 
 asciify = lambda s: ''.join( map( lambda c: c if c in CDATA_ALLOWED else r'\x{0:0x}'.format( ord( c ) ), s ) )
 
@@ -118,10 +119,10 @@ class TestRunner( object ):
 					'test', 'exit_on_fail=false', 'blue=echo', 'red=echo', 'reset=echo', 'LC_ALL=C'
 				]
 				start = time()
-				stdout = unicode( check_output( cmd, stderr = STDOUT ), errors = 'replace' )
+				stdout = unicode( check_output( cmd, stderr = STDOUT ), errors = 'replace' )[ : MAX_RESULT_LENGTH ]
 			except CalledProcessError as e:
 				stdout = None
-				stderr = unicode( e.output, errors = 'replace' )
+				stderr = unicode( e.output, errors = 'replace' )[ : MAX_RESULT_LENGTH ]
 			else:
 				stderr = None
 			finally:
@@ -138,7 +139,7 @@ class TestRunner( object ):
 	def getres( self, exercise, case_num ):
 		def _r( exercise, path, case_num ):
 			with open( join( self.temp_dir, exercise, path.format( case_num ) ) ) as f: data = unicode( f.read(), errors = 'replace' )
-			return data
+			return data[ : MAX_RESULT_LENGTH ]
 		stderr = _r( exercise, '.errors-{0}', case_num )
 		if stderr:
 			actual = diffs = None

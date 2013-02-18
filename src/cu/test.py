@@ -53,4 +53,4 @@ def main():
 		for uid in [ args.uid ] if args.uid else all_uids():
 			print 'Test for {0}: {1}'.format( uid, run( uid, args.timestamp, args.result_dir, args.clean or args.js, js ) )
 		if args.js:
-			with open( join( args.result_dir, 'results.js' ), 'w' ) as out: out.write( 'var results = {0};\n'.format( dumps( js ) ) )
+			with open( join( args.result_dir, 'results.js' ), 'w' ) as out: out.write( 'results = {0};\n'.format( dumps( js ) ) )
