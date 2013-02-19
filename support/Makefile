@@ -76,9 +76,9 @@ actual-%.txt: input-%.txt args-%.txt $(TARGET)
 			$(red);\
 			echo non-zero return value 1>&2;\
 			$(reset);\
+			head -c $(max_output) < .$@ > $@;\
+			rm -f .$@;\
 		fi;\
-		head -c $(max_output) < .$@ > $@;\
-		rm -f .$@;\
 		if $(exit_on_fail); then exit 1; fi;\
 	else\
 		head -c $(max_output) < .$@ > $@;\
