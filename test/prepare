@@ -3,6 +3,9 @@
 echocol() { echo -ne "\033[31m$@...\033[0m "; }
 
 tempdir=$(mktemp -d /tmp/cu-XXXXXXXXX) || exit 1
+make_file_size=$(\ls -l ./support/Makefile | tr -s ' ' | cut -d' ' -f5)
+readme_file_size=$(\ls -l ./support/LEGGIMI.txt | tr -s ' ' | cut -d' ' -f5)
+echo "[Makefile size: $make_file_size, LEGGIMI.txt size: $readme_file_size]"
 
 cp -r ./test/srcdir $tempdir
 export EXERCISES_DIR=$tempdir/srcdir
@@ -21,14 +24,14 @@ EOF
 ) | awk '{print $1, $3, $6}' | sort ) <(cat <<EOF | sort
 -r-------- 0 esercizio-1/Testo.txt
 -r-------- 0 esercizio-2/Testo.txt
--r-------- 1475 LEGGIMI.txt
+-r-------- $readme_file_size LEGGIMI.txt
 -r-------- 2 esercizio-1/args-1.txt
 -r-------- 2 esercizio-1/input-1.txt
 -r-------- 2 esercizio-1/output-1.txt
 -r-------- 2 esercizio-2/args-1.txt
 -r-------- 2 esercizio-2/input-1.txt
 -r-------- 2 esercizio-2/output-1.txt
--r-------- 2224 bin/Makefile
+-r-------- $make_file_size bin/Makefile
 -r-x------ 0 bin/
 -r-x------ 41 bin/identifica
 -r-x------ 69 bin/consegna
@@ -63,7 +66,7 @@ EOF
 -r-------- 2 esercizio-2/input-1t.txt
 -r-------- 2 esercizio-2/output-1.txt
 -r-------- 2 esercizio-2/output-1t.txt
--r-------- 2224 bin/Makefile
+-r-------- $make_file_size bin/Makefile
 -r-x------ 0 bin/
 -rwx------ 0 esercizio-1/
 -rwx------ 0 esercizio-2/
