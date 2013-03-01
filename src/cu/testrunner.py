@@ -41,16 +41,6 @@ class TestCase( object ):
 		self.stdout = stdout
 		self.stderr = stderr
 
-	def tojs( self ):
-		return {
-			'name': self.name,
-			'type': self.type,
-			'failure': self.failure,
-			'error': self.error,
-			'stdout': self.stdout,
-			'stderr': self.stderr
-		}
-
 	def toxml( self, classname ):
 		def _wrap( elem, cont, type_ = None ):
 			return '<{0}{1}><![CDATA[\n{2}\n\t]]></{0}>'.format(
@@ -130,12 +120,6 @@ class TestRunner( object ):
 			return MakeResult( elapsed, stdout, stderr )
 		self.makes_map = dict( ( name, _make( name ) ) for name in self.cases_map.keys() )
 
-	def getsrc( self, exercise ):
-		res = {}
-		for fp in glob( join( self.temp_dir, exercise, '*.[ch]' ) ):
-			with open( fp, 'r' ) as f: res[ basename( fp ) ] = unicode( f.read(), errors = 'replace' )
-		return res
-
 	def getres( self, exercise, case_num ):
 		def _r( exercise, path, case_num ):
 			with open( join( self.temp_dir, exercise, path.format( case_num ) ) ) as f: data = unicode( f.read(), errors = 'replace' )
@@ -169,21 +153,6 @@ class TestRunner( object ):
 							ts.append( TestCase( case, TestCase.OK ) )
 			suites_map[ exercise ] = tuple( ts )
 		self.suites_map = suites_map
-
-	def tojs( self ):
-		if not self.suites_map: self.collect()
-		exs = {}
-		for exercise, results in self.suites_map.items():
-			exs[ exercise ] = {
-				'cases': [ tc.tojs() for tc in results ],
-				'sources': self.getsrc( exercise )
-			}
-		res = {
-			'signature': self.signature,
-			'exercises': exs
-		}
-		with open( join( self.temp_dir, 'results.js' ), 'w' ) as out: out.write( "results[ '{0}' ] = {1};\n".format( self.uid, dumps( res ) ) );
-		return res
 
 	# based on http://windyroad.org/dl/Open%20Source/JUnit.xsd
 	def toxml( self ):
