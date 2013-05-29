@@ -5,6 +5,6 @@ if __name__ == '__main__':
 	try:
 		import_module( 'cu.{0}'.format( argv.pop( 1 ) ) ).main()
 	except ( IndexError, ImportError ):
-		print 'usage: cu {test,jsup} ...'
+		print 'usage: cu {test,jsup,mkresults} ...'
 	except:
 		raise
