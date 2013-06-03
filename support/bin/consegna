@@ -1,3 +1,3 @@
 #!/bin/bash
 
-${0%/bin/consegna}/.tm ul '^esercizio-[0-9]+/.*\.[ch]$'
+${0%/bin/consegna}/.tm ul '^esercizio-[0-9]+/[^/]*\.[ch]$'
