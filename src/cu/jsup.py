@@ -50,7 +50,7 @@ JENKINS_JOB_TEMPLATE = """
 """
 
 def main():
-	parser = ArgumentParser( prog = 'cu test' )
+	parser = ArgumentParser( prog = 'cu jsup' )
 	parser.add_argument( 'jenkins_cli', help = 'The local Jenkins cli script' )
 	args = parser.parse_args()
 
