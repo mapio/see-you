@@ -1,16 +1,11 @@
-from logging import basicConfig, getLogger, DEBUG, INFO
 from xml.dom import minidom
 from operator import itemgetter
-from sys import argv
 
-from tm.mkresults import TristoMietitoreScanner
-
-LOG_LEVEL = INFO
-basicConfig( format = '%(asctime)s %(levelname)s: %(funcName)s %(message)s', datefmt = '%Y-%m-%d %H:%M:%S', level = LOG_LEVEL )
-LOGGER = getLogger( __name__ )
+from tm.mkresults import TristoMietitoreScanner, main
 
 class SeeYouScanner( TristoMietitoreScanner ):
 
+	SHORT_NAME = 'cu'
 	SOURCE_PATTERN = r'(?P<uid>.*)/latest/(?P<exercise>.*)/(?P<source>.*\.[ch])$'
 	CASES_PATTERN = r'(?P<uid>.*)/latest/TEST-(?P=uid)\.(?P<exercise>.*)\.xml$'
 
@@ -51,6 +46,3 @@ class SeeYouScanner( TristoMietitoreScanner ):
 				exercise[ 'sources' ].sort( key = itemgetter( 'name' ) )
 		self.results.sort( key = lambda _: _[ 'signature' ][ 'uid' ] )
 		return self
-
-def main():
-	print SeeYouScanner( argv[ 1 ] ).scan().sort().tojson()
