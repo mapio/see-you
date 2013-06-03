@@ -34,7 +34,7 @@ EOF
 -r-------- $make_file_size bin/Makefile
 -r-x------ 0 bin/
 -r-x------ 41 bin/identifica
--r-x------ 69 bin/consegna
+-r-x------ 72 bin/consegna
 -rwx------ 0 esercizio-1/
 -rwx------ 0 esercizio-2/
 EOF
