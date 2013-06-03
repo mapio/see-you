@@ -35,11 +35,11 @@ def build( jenkins_workspace, jenkins_cli, uid, timestamp = None ):
 def main():
 
 	parser = ArgumentParser( prog = 'cu test' )
-	parser.add_argument( '--jenkins_cli', help = 'If defined to the local Jenkins cli script, it will be used to issue builds (instead of running them locally)' )
-	parser.add_argument( '--uid', help = 'The UID to test (default: all)' )
-	parser.add_argument( '--results_dir', help = 'The destination directory where to store the results (default: UPLOAD_DIR)' )
-	parser.add_argument( '--timestamp', help = 'The timestamp of the upload to test (default: latest)' )
-	parser.add_argument( '--clean', action='store_true', help = 'Whether to clean the destination result directory first' )
+	parser.add_argument( '--jenkins_cli', '-j', help = 'If defined to the local Jenkins cli script, it will be used to issue builds (instead of running them locally)' )
+	parser.add_argument( '--uid', '-u', help = 'The UID to test (default: all)' )
+	parser.add_argument( '--results_dir', '-r', help = 'The destination directory where to store the results (default: UPLOAD_DIR)' )
+	parser.add_argument( '--timestamp', '-t', help = 'The timestamp of the upload to test (default: latest)' )
+	parser.add_argument( '--clean', '-c', action='store_true', help = 'Whether to clean the destination result directory first' )
 	args = parser.parse_args()
 
 	if args.jenkins_cli:
