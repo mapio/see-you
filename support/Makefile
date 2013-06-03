@@ -10,7 +10,7 @@ DIFFS = $(INPUTS:input-%.txt=diffs-%.txt)
 compile = $(CC) $(CFLAGS) -c -o $@ $<
 link = $(CC) $^ -o $@
 test = ./soluzione $$\(cat args-$*.txt\) \< $< \> $@
-max_output = 4096
+max_output = $$((1024*1024))
 
 exit_on_fail = true
 
