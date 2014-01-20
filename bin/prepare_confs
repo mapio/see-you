@@ -76,9 +76,11 @@ tm mkconf -vf "$filter" -b "$srcdir/conf.py" $tempdir/bundle "$dstdir/$bn-cu.py"
 echocol "*** Generating the ts (texts and solutions) tar..."
 
 mkdir -p "$tempdir/texts/$bn-ts"
+n=1
 for e in $(cat "$srcdir/exercises.txt"); do
-	cp "$EXERCISES_DIR/$e/Testo.txt" "$tempdir/texts/$bn-ts/$e.txt"
-	cp "$EXERCISES_DIR/$e/soluzione.c" "$tempdir/texts/$bn-ts/$e.c"
+	cp "$EXERCISES_DIR/$e/Testo.txt" "$tempdir/texts/$bn-ts/$n-$e.txt"
+	cp "$EXERCISES_DIR/$e/soluzione.c" "$tempdir/texts/$bn-ts/$n-$e.c"
+	n=$(( $n + 1 ))
 done
 tar -C $tempdir/texts -cvf "$dstdir/$bn-ts.tar" $bn-ts
 
