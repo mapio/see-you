@@ -45,7 +45,7 @@ echocol "Adding readme and bins..."
 
 cp "$SUPPORT/LEGGIMI.txt" $tempdir/bundle/LEGGIMI.txt
 mkdir $tempdir/bundle/bin
-cp "$SUPPORT/Makefile" "$SUPPORT/bin/"{consegna,identifica} $tempdir/bundle/bin
+cp "$SUPPORT/Makefile" "$SUPPORT/bin/"{consegna,identifica,aggiorna} $tempdir/bundle/bin
 
 echocol "Fixing perms..."
 
