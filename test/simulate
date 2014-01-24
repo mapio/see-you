@@ -54,10 +54,11 @@ sign ()  { eval $(python -c "from urllib2 import urlopen; exec urlopen( 'http://
 
 sign 123
 
-assert "Home setup" <(find /tmp/cu_test/student/ | sort) <(cat <<EOF | sort
-/tmp/cu_test/student/
+assert "Home setup" <(find /tmp/cu_test/student | sort) <(cat <<EOF | sort
+/tmp/cu_test/student
 /tmp/cu_test/student/.tm
 /tmp/cu_test/student/bin
+/tmp/cu_test/student/bin/aggiorna
 /tmp/cu_test/student/bin/consegna
 /tmp/cu_test/student/bin/identifica
 /tmp/cu_test/student/bin/Makefile
