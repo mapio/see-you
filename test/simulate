@@ -16,7 +16,7 @@ if [ -d /tmp/cu_test ]; then
 	chmod -R u+w /tmp/cu_test
 	rm -rf /tmp/cu_test
 fi
-mkdir -p /tmp/cu_test/{student,teacher}
+mkdir -p /tmp/cu_test/{student,teacher,uploads}
 
 echocol "Setup"
 
@@ -24,7 +24,7 @@ cp ./bin/{cu,tm} /tmp/cu_test/teacher
 
 export TEST="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )/test"
 export EXERCISES_DIR=$TEST/srcdir
-./bin/prepare_confs $EXERCISES_DIR >/dev/null 2>&1
+./bin/prepare_confs $EXERCISES_DIR /tmp/cu_test/uploads #>/dev/null 2>&1
 
 mv $TEST/srcdir/pc /tmp/cu_test/teacher
 export TM_SETTINGS=/tmp/cu_test/teacher/pc/srcdir-tm.py

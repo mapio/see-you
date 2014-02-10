@@ -5,11 +5,11 @@ echocol() { echo -ne "\033[31m$@...\033[0m "; }
 tempdir=$(mktemp -d /tmp/cu-XXXXXXXXX) || exit 1
 make_file_size=$(\ls -l ./support/Makefile | tr -s ' ' | cut -d' ' -f5)
 readme_file_size=$(\ls -l ./support/LEGGIMI.txt | tr -s ' ' | cut -d' ' -f5)
-echo "[Makefile size: $make_file_size, LEGGIMI.txt size: $readme_file_size]"
+#echo "[Makefile size: $make_file_size, LEGGIMI.txt size: $readme_file_size]"
 
 cp -r ./test/srcdir $tempdir
 export EXERCISES_DIR=$tempdir/srcdir
-./bin/prepare_confs $EXERCISES_DIR >/dev/null 2>&1
+./bin/prepare_confs $EXERCISES_DIR /tmp/cu_test/uploads >/dev/null 2>&1
 
 export PYTHONPATH=./bin/tm
 

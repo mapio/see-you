@@ -6,4 +6,3 @@ LANG = 'it'
 
 HOME = '/tmp/cu_test/student'
 
-UPLOAD_DIR = '/tmp/cu_test/uploads'
