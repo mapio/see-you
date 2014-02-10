@@ -9,6 +9,7 @@ readme_file_size=$(\ls -l ./support/LEGGIMI.txt | tr -s ' ' | cut -d' ' -f5)
 
 cp -r ./test/srcdir $tempdir
 export EXERCISES_DIR=$tempdir/srcdir
+mkdir -p /tmp/cu_test/uploads
 ./bin/prepare_confs $EXERCISES_DIR /tmp/cu_test/uploads >/dev/null 2>&1
 
 export PYTHONPATH=./bin/tm
