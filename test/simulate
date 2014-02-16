@@ -82,7 +82,7 @@ assert "Make test 1" <(make test) <(cat <<EOF
 gcc -Wall -pedantic -ansi -c -o soluzione.o soluzione.c
 gcc soluzione.o -o soluzione
 ./soluzione \$(cat args-1.txt) < input-1.txt > actual-1.txt
-diff -b output-1.txt actual-1.txt > diffs-1.txt
+diff -Bab output-1.txt actual-1.txt > diffs-1.txt
 EOF)
 
 assert "Upload 1" <(consegna) <(cat <<EOF
@@ -97,7 +97,7 @@ assert "make test 2" <(make test red='echo' reset='echo' 2>&1) <(cat <<EOF
 gcc -Wall -pedantic -ansi -c -o soluzione2.o soluzione2.c
 gcc soluzione2.o -o soluzione
 ./soluzione \$(cat args-1.txt) < input-1.txt > actual-1.txt
-diff -b output-1.txt actual-1.txt > diffs-1.txt
+diff -Bab output-1.txt actual-1.txt > diffs-1.txt
 
 0a1
 > 2

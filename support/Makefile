@@ -101,8 +101,8 @@ actual-%.txt: input-%.txt args-%.txt $(TARGET)
 	fi
 
 diffs-%.txt: output-%.txt actual-%.txt
-	@echo diff -qBab $^ \> $@
-	@bash -c "diff -qBab actual-$*.txt output-$*.txt > $@" 2> /dev/null || true
+	@echo diff -Bab $^ \> $@
+	@bash -c "diff -Bab actual-$*.txt output-$*.txt > $@" 2> /dev/null || true
 	@if [ -s $@ ]; then\
 	 	$(red);\
 	 	cat $@;\
