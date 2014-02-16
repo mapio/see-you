@@ -18,7 +18,21 @@ red := bash -c 'echo -ne "\033[31m"'
 blue := bash -c 'echo -ne "\033[34m"'
 reset := bash -c 'echo -ne "\033[0m"'
 
-.PHONY: compila test pulisci
+.PHONY: aiuto compila test pulisci consegna termina
+
+aiuto:
+	@echo "      aiuto: mostra questo aiuto"
+	@echo "    compila: compila i file sorgenti"
+	@echo "       test: esegue i test"
+	@echo "    pulisci: elimina i file generati dai test ed i backup dell'editor"
+	@echo "   consegna: esegue il comando 'consegna'"
+	@echo "    termina: termina tutti gli xterm in esecuzione (ed i processi lanciati da essi)"
+
+consegna:
+	consegna
+
+termina:
+	@bash -c 'read -p "Sei sicuro? " -rsn 1; if [[ $$REPLY =~ ^[Ss]$$ ]]; then killall xterm >/dev/null 2>&1; fi; echo'
 
 compila: $(TARGET) ;
 
