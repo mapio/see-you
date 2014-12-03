@@ -4,7 +4,7 @@ Istruzioni più dettagliate, di cui si raccomanda a tutti la lettura,
 possono essere accedute invocando il browser digitando nel terminale il
 comando
 
-	firefox	http://santini.dsi.unimi.it/d/labprog/esame.html &
+	firefox	http://santini.di.unimi.it/d/labprog/esame.html &
 
 Gli impazienti pososno viceversa seguire queste brevi indicazioni:
 
@@ -18,13 +18,14 @@ Gli impazienti pososno viceversa seguire queste brevi indicazioni:
 
 	2) leggete la traccia dell'esercizio 'Testo.txt',
 
-	3) implementate la vostra soluzione in uno (o più) file (salvati nella
-       directory corrente, con nome qualunque purché con estensione '.c'),
-       avendo cura di definire una ed una sola funzione di nome main.
-       Se necessario potete accedere tramite il browser alla documentazione
-       on-line disponibile all'indirizzo
+	3) implementate la vostra soluzione in uno (o più) file (salvati
+	   nella directory corrente, con nome qualunque purché con estensione
+	   '.c',  oppure '.java'), avendo cura di definire una ed una sola
+	   funzione, o metodo, di nome main. Se necessario potete accedere
+	   tramite il browser alla documentazione on-line disponibile
+	   all'indirizzo
 
-		http://santini.dsi.unimi.it/d/labprog/esame.html
+		http://santini.di.unimi.it/d/labprog/esame.html
 
 	4) eseguite il comando:
 
