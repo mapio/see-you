@@ -64,6 +64,8 @@ echo -n AB > output-0.txt
 
 # C
 
+echo -e "\033[32m*** C targets...\033[0m"
+
 echo -e '#include <stdio.h>\nint main( void ) { printf( "AB" ); return 0; }' > soluzione.c
 assert "No error" "" "" "" NF
 assert "Truncate" "max_output=1" "< AB#> A#" ""
@@ -89,8 +91,9 @@ assert "Complier error" "" "" "compiler exit status" F
 echo 'int main( void ) { f(); }' > soluzione.c
 assert "Linker error" "" "" "ndefined symbol" F
 
-
 # Java
+
+echo -e "\033[32m*** Java targets...\033[0m"
 
 rm -f soluzione.c
 
@@ -104,6 +107,10 @@ assert "Diff" "" "< AB#"
 echo -e 'public class Test { public static void main( String[] args ) { for(;;); } }' > Test.java
 assert "Timeout" "" "" "execution timeout"
 
+echo 'int main' > Test.java
+assert "Complier error" "" "" "compiler exit status" F
+
+echo -e 'public class Test { public static void main( String[] args ) {} }' > Test.java
 echo -e 'public class Tost { public static void main( String[] args ) {} }' > Tost.java
 assert "Too many main found" "" "" "more than one main method found" F
 
