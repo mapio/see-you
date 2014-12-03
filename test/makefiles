@@ -89,7 +89,7 @@ echo 'int main' > soluzione.c
 assert "Complier error" "" "" "compiler exit status" F
 
 echo 'int main( void ) { f(); }' > soluzione.c
-assert "Linker error" "" "" "ndefined symbol" F
+assert "Linker error" "" "" "ndefined" F
 
 # Java
 
