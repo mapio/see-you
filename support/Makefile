@@ -1,15 +1,29 @@
-CFLAGS = -Wall -pedantic -ansi
-CC = gcc
+SHELL = bash
 
-SOURCES = $(wildcard *.c)
-OBJECTS = $(SOURCES:.c=.o)
-TARGET = soluzione
+CSOURCES = $(wildcard *.c)
+JSOURCES = $(wildcard *.java)
+
+ifeq ($(strip $(CSOURCES)),)
+	jcode = 1
+	SOURCES = $(JSOURCES)
+	OBJECTS = $(SOURCES:.java=.class)
+	JAVAC = javac
+	compile = $(JAVAC) $<
+else
+	ccode = 1
+	SOURCES = $(CSOURCES)
+	OBJECTS = $(SOURCES:.c=.o)
+	CFLAGS = -Wall -pedantic -ansi
+	CC = gcc
+	compile = $(CC) $(CFLAGS) -c -o $@ $<
+	link = $(CC) $^ -o $@
+endif
+
 INPUTS = $(wildcard input-*.txt)
 DIFFS = $(INPUTS:input-%.txt=diffs-%.txt)
-
-compile = $(CC) $(CFLAGS) -c -o $@ $<
-link = $(CC) $^ -o $@
+TARGET = soluzione
 test = ./soluzione $$\(cat args-$*.txt\) \< $< \> $@
+
 max_output = $$((1024*1024))
 
 exit_on_fail = true
@@ -39,7 +53,7 @@ compila: $(TARGET) ;
 test: $(DIFFS) ;
 
 pulisci:
-	@rm -f *.o .compile-* .link-* .errors-* actual-*.txt diffs-*.txt $(TARGET) \~*
+	@rm -f *.o .compile-* .link-* .errors-* actual-*.txt diffs-*.txt $(TARGET) .main-* *.class \~*
 
 %.o: %.c
 	@rm -f .compile-$*
@@ -54,38 +68,75 @@ pulisci:
 	fi
 	@if grep -q error: .compile-$*; then\
 		$(blue);\
-		grep ': error:' .compile-$*;\
+		grep ': error:' .compile-$* 1>&2;\
+		$(reset);\
+		exit 1;\
+	fi
+
+%.class: %.java
+	@rm -f .compile-$*
+	@echo $(compile)
+	@if ! $(compile) 2> .compile-$*; then\
+		echo "make: error: compiler exit status: $$?" >> .compile-$*;\
+	fi
+	@if grep -q warning: .compile-$*; then\
+		$(red);\
+		grep ': warning:' .compile-$*;\
+		$(reset);\
+	fi
+	@if grep -q error: .compile-$*; then\
+		$(blue);\
+		grep ': error:' .compile-$* 1>&2;\
 		$(reset);\
 		exit 1;\
 	fi
 
 $(TARGET): $(OBJECTS)
+ifdef ccode
 	@rm -f .link-$@
 	@echo $(link)
 	@$(link) -fmessage-length=0 2> .link-$@ || true
 	@if [ -s .link-$@ ]; then\
 		$(blue);\
-		cat .link-$@;\
+		cat .link-$@ 1>&2;\
 		$(reset);\
 		exit 1;\
 	fi
+else
+	@rm -f .main-$@ $@
+	@grep -HE 'public\s+static\s+void\s+main' *.java | cut -d : -f 1 | cut -d . -f 1 > .main-$@
+	@if [ $$(wc -l < .main-$@) -eq 0 ]; then\
+		$(blue);\
+		echo error: no main method found 1>&2;\
+		$(reset);\
+		exit 1;\
+	fi
+	@if [ $$(wc -l < .main-$@) -gt 1 ]; then\
+		$(blue);\
+		echo error: more than one main method found 1>&2;\
+		$(reset);\
+		exit 1;\
+	fi
+	@echo -e "#!/bin/sh\nexec java $$(cat .main-$@)"  > $@
+	@chmod u+x $@
+endif
 
 .PRECIOUS: actual-%.txt
 
 actual-%.txt: input-%.txt args-%.txt $(TARGET)
 	@rm -f .errors-$* $@
 	@echo $(test)
-	@if ! bash -c "ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< > .$@" 2> .errors-$*; then\
+	@if ! bash -c 'ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< > .$@' 2> .errors-$*; then\
 		if grep -Eqi 'bash: line 1:.*(Killed|Cputime limit exceeded)' .errors-$*; then\
 			$(blue);\
 			echo execution timeout 1>&2;\
 			$(reset);\
-			rm .$@;\
+			rm -f .$@;\
 		elif grep -Eqi 'bash: line 1:.*Segmentation fault' .errors-$*; then\
 			$(red);\
 			echo segmentation fault 1>&2;\
 			$(reset);\
-			rm .$@;\
+			rm -f .$@;\
 		else\
 			$(red);\
 			echo non-zero return value 1>&2;\
