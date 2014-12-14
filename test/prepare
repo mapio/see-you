@@ -25,6 +25,7 @@ EOF
 ) | awk '{print $1, $3, $6}' | sort ) <(cat <<EOF | sort
 -r-------- 0 esercizio-1/Testo.txt
 -r-------- 0 esercizio-2/Testo.txt
+-r-------- 0 esercizio-3/Testo.txt
 -r-------- $readme_file_size LEGGIMI.txt
 -r-------- 2 esercizio-1/args-1.txt
 -r-------- 2 esercizio-1/input-1.txt
@@ -32,13 +33,17 @@ EOF
 -r-------- 2 esercizio-2/args-1.txt
 -r-------- 2 esercizio-2/input-1.txt
 -r-------- 2 esercizio-2/output-1.txt
+-r-------- 2 esercizio-3/args-1.txt
+-r-------- 2 esercizio-3/input-1.txt
+-r-------- 2 esercizio-3/output-1.txt
 -r-------- $make_file_size bin/Makefile
 -r-x------ 0 bin/
 -r-x------ 39 bin/aggiorna
 -r-x------ 41 bin/identifica
--r-x------ 72 bin/consegna
+-r-x------ 78 bin/consegna
 -rwx------ 0 esercizio-1/
 -rwx------ 0 esercizio-2/
+-rwx------ 0 esercizio-3/
 EOF
 ); then
 	echo OK
@@ -68,10 +73,17 @@ EOF
 -r-------- 2 esercizio-2/input-1t.txt
 -r-------- 2 esercizio-2/output-1.txt
 -r-------- 2 esercizio-2/output-1t.txt
+-r-------- 2 esercizio-3/args-1.txt
+-r-------- 2 esercizio-3/args-1t.txt
+-r-------- 2 esercizio-3/input-1.txt
+-r-------- 2 esercizio-3/input-1t.txt
+-r-------- 2 esercizio-3/output-1.txt
+-r-------- 2 esercizio-3/output-1t.txt
 -r-------- $make_file_size bin/Makefile
 -r-x------ 0 bin/
 -rwx------ 0 esercizio-1/
 -rwx------ 0 esercizio-2/
+-rwx------ 0 esercizio-3/
 EOF
 ); then
 	echo OK
