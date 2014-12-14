@@ -72,6 +72,11 @@ assert "Home setup" <(find /tmp/cu_test/student | sort) <(cat <<EOF | sort
 /tmp/cu_test/student/esercizio-2/input-1.txt
 /tmp/cu_test/student/esercizio-2/output-1.txt
 /tmp/cu_test/student/esercizio-2/Testo.txt
+/tmp/cu_test/student/esercizio-3
+/tmp/cu_test/student/esercizio-3/args-1.txt
+/tmp/cu_test/student/esercizio-3/input-1.txt
+/tmp/cu_test/student/esercizio-3/output-1.txt
+/tmp/cu_test/student/esercizio-3/Testo.txt
 /tmp/cu_test/student/LEGGIMI.txt
 EOF)
 
@@ -93,7 +98,7 @@ EOF)
 echo 'int main( void ) { return 0; }' > /tmp/cu_test/student/esercizio-2/soluzione2.c
 cd /tmp/cu_test/student/esercizio-2
 
-assert "make test 2" <(make test red='echo' reset='echo' 2>&1) <(cat <<EOF
+assert "Make test 2" <(make test red='echo' reset='echo' 2>&1) <(cat <<EOF
 gcc -Wall -pedantic -ansi -c -o soluzione2.o soluzione2.c
 gcc soluzione2.o -o soluzione
 ./soluzione \$(cat args-1.txt) < input-1.txt > actual-1.txt
@@ -112,6 +117,16 @@ esercizio-2
 esercizio-2/soluzione2.c
 EOF)
 
+
+echo 'public class Soluzione { public static void main( String[] args ) {} }' > /tmp/cu_test/student/esercizio-3/Soluzione.java
+assert "Upload 3" <(consegna) <(cat <<EOF
+esercizio-1
+esercizio-1/soluzione.c
+esercizio-2
+esercizio-2/soluzione2.c
+esercizio-3
+esercizio-3/Soluzione.java
+EOF)
 
 sign 456
 
@@ -134,6 +149,7 @@ Signed: 123@127.0.0.1
 Download: 123@127.0.0.1
 Upload: 123@127.0.0.1
 Upload: 123@127.0.0.1
+Upload: 123@127.0.0.1
 Signed: 456@127.0.0.1
 Download: 456@127.0.0.1
 Upload: 456@127.0.0.1
@@ -147,9 +163,11 @@ EOF)
 assert "Tests" <(ls -1 /tmp/cu_test/uploads/*/latest/TEST*) <(cat <<EOF
 /tmp/cu_test/uploads/123/latest/TEST-123.esercizio-1.xml
 /tmp/cu_test/uploads/123/latest/TEST-123.esercizio-2.xml
+/tmp/cu_test/uploads/123/latest/TEST-123.esercizio-3.xml
 /tmp/cu_test/uploads/456/latest/TEST-456.esercizio-1.xml
 /tmp/cu_test/uploads/456/latest/TEST-456.esercizio-2.xml
+/tmp/cu_test/uploads/456/latest/TEST-456.esercizio-3.xml
 EOF)
 
-assert "Test (content)" <(grep -l 'type=' /tmp/cu_test/uploads/456/latest/TEST-456.esercizio-*) \
+assert "Test (content)" <(grep -l 'type=' /tmp/cu_test/uploads/456/latest/TEST-456.esercizio-[12].xml) \
 	<(echo "/tmp/cu_test/uploads/456/latest/TEST-456.esercizio-2.xml") # soluzione1.c returns 1, but is correct...
