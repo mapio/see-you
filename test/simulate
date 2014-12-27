@@ -47,11 +47,6 @@ else
 	exit 1
 fi
 
-assert "Gensecrets" <(./bin/gensecrets $TM_SETTINGS) <(cat <<EOF
-123:6a820694730ce4b3f74e334972c9bb2f7bcd4f77204076ab943ae2aa8bf4fa44
-456:178d13a63c6702752ca65d6d4db92959ef61f94c07240580892f1ca5cbe024c7
-EOF)
-
 echocol "Student side"
 (
 
