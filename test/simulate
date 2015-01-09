@@ -117,6 +117,14 @@ esercizio-2
 esercizio-2/soluzione2.c
 EOF)
 
+cp $TEST/srcdir/exercise/Soluzione.java /tmp/cu_test/student/esercizio-3
+cd /tmp/cu_test/student/esercizio-3
+
+assert "Make test 3" <(make test) <(cat <<EOF
+javac Soluzione.java
+./soluzione \$(cat args-1.txt) < input-1.txt > actual-1.txt
+diff -Bab output-1.txt actual-1.txt > diffs-1.txt
+EOF)
 
 echo 'public class Soluzione { public static void main( String[] args ) {} }' > /tmp/cu_test/student/esercizio-3/Soluzione.java
 assert "Upload 3" <(consegna) <(cat <<EOF
