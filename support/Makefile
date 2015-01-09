@@ -117,7 +117,7 @@ else
 		$(reset);\
 		exit 1;\
 	fi
-	@echo -e "#!/bin/sh\nexec java $$(cat .main-$@)"  > $@
+	@bash -c "echo -e '#!/bin/sh\nexec java $$(cat .main-$@) \"\$$@\"' > $@"
 	@chmod u+x $@
 endif
 
