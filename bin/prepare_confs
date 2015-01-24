@@ -51,14 +51,14 @@ n=1
 for e in $(cat "$srcdir/exercises.txt"); do
 	dst=$tempdir/bundle/esercizio-$n
 	mkdir $dst
-	cp "$EXERCISES_DIR/$e"/{*.[ch],*.txt} $dst
+	( shopt -s nullglob; cp "$EXERCISES_DIR/$e"/*.{c,h,java,txt} $dst )
 	n=$(( n + 1 ))
 done
 
 echocol "Making test files (and removing the solution source code)..."
 
 MAKEFILES="$SUPPORT/Makefile $SUPPORT/Makefile-prepare" make -wC $tempdir/bundle routs
-rm -f $tempdir/bundle/*/{soluzione*,*.[ch]}
+rm -f $tempdir/bundle/*/{soluzione*,*.{c,h,java}}
 
 echocol "Adding readme and bins..."
 
@@ -98,7 +98,8 @@ mkdir -p "$tempdir/texts/$bn-ts"
 n=1
 for e in $(cat "$srcdir/exercises.txt"); do
 	cp "$EXERCISES_DIR/$e/Testo.txt" "$tempdir/texts/$bn-ts/$n-$e.txt"
-	cp "$EXERCISES_DIR/$e/soluzione.c" "$tempdir/texts/$bn-ts/$n-$e.c"
+	[[ -r "$EXERCISES_DIR/$e/soluzione.c" ]] && cp "$EXERCISES_DIR/$e/soluzione.c" "$tempdir/texts/$bn-ts/$n-$e.c"
+	[[ -r "$EXERCISES_DIR/$e/Soluzione.java" ]] && cp "$EXERCISES_DIR/$e/Soluzione.java" "$tempdir/texts/$bn-ts/$n-$e.java"
 	n=$(( $n + 1 ))
 done
 tar -C $tempdir/texts -cvf "$dstdir/$bn-ts.tar" $bn-ts
