@@ -8,7 +8,7 @@ ifeq ($(strip $(CSOURCES)),)
 	SOURCES = $(JSOURCES)
 	OBJECTS = $(SOURCES:.java=.class)
 	JAVAC = javac
-	compile = $(JAVAC) $<
+	compile = $(JAVAC) -encoding utf8 $<
 else
 	ccode = 1
 	SOURCES = $(CSOURCES)
