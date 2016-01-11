@@ -121,7 +121,7 @@ cp $TEST/srcdir/exercise/Soluzione.java /tmp/cu_test/student/esercizio-3
 cd /tmp/cu_test/student/esercizio-3
 
 assert "Make test 3" <(make test) <(cat <<EOF
-javac Soluzione.java
+javac -encoding utf8 Soluzione.java
 ./soluzione \$(cat args-1.txt) < input-1.txt > actual-1.txt
 diff -Bab output-1.txt actual-1.txt > diffs-1.txt
 EOF)
