@@ -98,7 +98,7 @@ EOF)
 echo 'int main( void ) { return 0; }' > /tmp/cu_test/student/esercizio-2/soluzione2.c
 cd /tmp/cu_test/student/esercizio-2
 
-assert "Make test 2" <(make test red='echo' reset='echo' 2>&1) <(cat <<EOF
+assert "Make test 2" <(make test red='echo' reset='echo' 2>&1 | head -n 7) <(cat <<EOF
 gcc -Wall -pedantic -ansi -c -o soluzione2.o soluzione2.c
 gcc soluzione2.o -o soluzione
 ./soluzione \$(cat args-1.txt) < input-1.txt > actual-1.txt
@@ -106,8 +106,6 @@ diff -Bab output-1.txt actual-1.txt > diffs-1.txt
 
 0a1
 > 2
-
-make: *** [diffs-1.txt] Error 1
 EOF)
 
 assert "Upload 2" <(consegna) <(cat <<EOF
