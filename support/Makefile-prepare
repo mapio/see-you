@@ -13,8 +13,8 @@ clean: pulisci
 
 .PRECIOUS: output-%.txt
 
-output-%.txt: input-%.txt args-%.txt $(TARGET)
-	./$(TARGET) $$(cat args-$*.txt) < $< > $@
+output-%.txt: actual-%.txt
+	@mv $< $@
 
 routs: $(EXERCISES) ;
 

@@ -146,9 +146,17 @@ actual-%.txt: input-%.txt args-%.txt $(TARGET)
 		fi;\
 		if $(exit_on_fail); then exit 1; fi;\
 	else\
-		head -c $(max_output) < .$@ > $@;\
-		rm -f .$@;\
-		> .errors-$*;\
+		if grep -q -e '[[:cntrl:]]' .$@; then\
+			$(red);\
+			echo file contains control chars 1>&2;\
+			$(reset);\
+			rm -f .$@;\
+			if $(exit_on_fail); then exit 1; fi;\
+		else\
+			head -c $(max_output) < .$@ > $@;\
+			rm -f .$@;\
+			> .errors-$*;\
+		fi;\
 	fi
 
 diffs-%.txt: output-%.txt actual-%.txt
