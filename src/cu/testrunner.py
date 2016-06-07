@@ -92,7 +92,7 @@ class TestRunner( object ):
 
 	def __exit__( self, exc_type, exc_value, traceback ):
 		self.delete()
-		return False  # pass the exceptions upwards
+		return False # pass the exceptions upwards
 
 	def make( self ):
 		def _make( exercise ):
@@ -122,8 +122,10 @@ class TestRunner( object ):
 
 	def getres( self, exercise, case_num ):
 		def _r( exercise, path, case_num ):
-			with open( join( self.temp_dir, exercise, path.format( case_num ) ) ) as f: data = unicode( f.read(), errors = 'replace' )
-			return data[ : MAX_RESULT_LENGTH ]
+			fpath = join( self.temp_dir, exercise, path.format( case_num ) )
+			with open( fpath ) as f:
+				data = unicode( f.read(), errors = 'replace' )
+				return data[ : MAX_RESULT_LENGTH ]
 		stderr = _r( exercise, '.errors-{0}', case_num )
 		if stderr:
 			actual = diffs = None

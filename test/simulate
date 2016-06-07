@@ -161,9 +161,9 @@ Download: 456@127.0.0.1
 Upload: 456@127.0.0.1
 EOF)
 
-assert "See you" <(/tmp/cu_test/teacher/cu test| cut -b -48) <(cat <<EOF
-Test for 123: saved in /tmp/cu_test/uploads/123/
-Test for 456: saved in /tmp/cu_test/uploads/456/
+assert "See you" <(/tmp/cu_test/teacher/cu test 2>&1| cut -d']' -f2 | cut -b2-53) <(cat <<EOF
+Test for uid 123, saved in /tmp/cu_test/uploads/123/
+Test for uid 456, saved in /tmp/cu_test/uploads/456/
 EOF)
 
 assert "Tests" <(ls -1 /tmp/cu_test/uploads/*/latest/TEST*) <(cat <<EOF
