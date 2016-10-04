@@ -7,7 +7,7 @@ class SeeYouScanner( TristoMietitoreScanner ):
 
 	SHORT_NAME = 'cu'
 	SOURCE_PATTERN = r'(?P<uid>.*)/latest/(?P<exercise>.*)/(?P<source>.*\.(c|h|java))$'
-	CASES_PATTERN = r'(?P<uid>.*)/latest/TEST-(?P=uid)\.(?P<exercise>.*)\.xml$'
+	CASES_PATTERN = r'(?P<uid>.*)/latest/TEST-(?P=uid)\.(?P<exercise>.*)\.(?P<case>xml)$'
 
 	def cases_reader( self, path ):
 		get_cdata = lambda elements: elements[ 0 ].childNodes[ 0 ].nodeValue
