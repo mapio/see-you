@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from json import dumps
 from glob import glob
 from os import chmod, unlink
@@ -69,12 +69,13 @@ class TestRunner( object ):
 		TAR_DATA.seek( 0 )
 		with TarFile.open( mode = 'r', fileobj = TAR_DATA ) as tf: tf.extractall( temp_dir )
 		with TarFile.open( join( UPLOAD_DIR, uid, timestamp + '.tar' ), mode = 'r' ) as tf: tf.extractall( temp_dir )
-		re = recompile( r'.*/(esercizio-[0-9]+)/(input-(.*)\.txt)?' )
-		cases_map = {}
-		for path in glob( join( temp_dir, 'esercizio-*/' ) ):
-			cases_map[ re.match( path ).group( 1 ) ] = (
-				re.match( input_file_path ).group( 3 ) for input_file_path in glob( join( path, 'input-*.txt' ) )
-			)
+		re = recompile( r'.*/(?P<exercise>.+)/input-(?P<number>.*)\.txt' )
+		cases_map = defaultdict(list)
+		for path in glob( join( temp_dir, '*/*' ) ):
+			match = re.match( path )
+			if not match: continue
+			gd = match.groupdict()
+			cases_map[ gd[ 'exercise' ] ].append( gd[ 'number' ] )
 		with open( join( UPLOAD_DIR, uid, 'SIGNATURE.tsv' ), 'r' ) as f: signature = f.read()
 		self.signature = signature.strip().split( '\t' )
 		self.uid = uid
