@@ -40,7 +40,7 @@ EOF
 -r-x------ 0 bin/
 -r-x------ 39 bin/aggiorna
 -r-x------ 41 bin/identifica
--r-x------ 78 bin/consegna
+-r-x------ 81 bin/consegna
 -rwx------ 0 esercizio-1/
 -rwx------ 0 esercizio-2/
 -rwx------ 0 esercizio-3/
