@@ -59,6 +59,7 @@ export MAKEFILES=$(pwd)/support/Makefile
 tempdir=$(mktemp -d /tmp/cu-XXXXXXXXX) || exit 1
 cd $tempdir
 
+
 touch args-0.txt input-0.txt
 echo -n AB > output-0.txt
 
@@ -131,6 +132,8 @@ assert "Diff" "" "< AB#"
 echo -e 'while true; do true; done' > test.sh
 assert "Timeout" "" "" "execution timeout"
 
+echo -e 'sleep 1000' > test.sh
+assert "Sleep" "" "" "execution timeout"
 
 
 echo -e "\033[32m*** No targets...\033[0m"

@@ -155,15 +155,15 @@ endif
 actual-%.txt: input-%.txt args-%.txt $(TARGET)
 	@rm -f .errors-$* $@
 	@echo $(test)
-	@if ! bash -c 'ulimit -t 2; ./$(TARGET) $$(cat args-$*.txt) < $< > .$@' 2> .errors-$*; then\
-		if grep -Eqi 'bash: line 1:.*(Killed|Cputime limit exceeded)' .errors-$*; then\
-			$(blue);\
-			echo execution timeout 1>&2;\
-			$(reset);\
-			rm -f .$@;\
-		elif grep -Eqi 'bash: line 1:.*Segmentation fault' .errors-$*; then\
+	@if ! bash -c '( cmdpid=$$BASHPID; (sleep 2; kill $$cmdpid 2>/dev/null && echo bash: line 1: Terminated 1>&2) & exec ./$(TARGET) $$(cat args-$*.txt) < $< > .$@ )' 2>.errors-$*; then\
+		if grep -Eqi 'bash: line 1: .*Segmentation fault' .errors-$*; then\
 			$(red);\
 			echo segmentation fault 1>&2;\
+			$(reset);\
+			rm -f .$@;\
+		elif grep -Eqi 'bash: line 1: .*Terminated' .errors-$*; then\
+			$(blue);\
+			echo execution timeout 1>&2;\
 			$(reset);\
 			rm -f .$@;\
 		else\
