@@ -6,7 +6,7 @@ from tm.mkresults import TristoMietitoreScanner, main
 class SeeYouScanner( TristoMietitoreScanner ):
 
 	SHORT_NAME = 'cu'
-	SOURCE_PATTERN = r'(?P<uid>.*)/latest/(?P<exercise>.*)/(?P<source>.*\.(c|h|java))$'
+	SOURCE_PATTERN = r'(?P<uid>.*)/latest/(?P<exercise>.*)/(?P<source>.*\.(c|h|java|sh))$'
 	CASES_PATTERN = r'(?P<uid>.*)/latest/TEST-(?P=uid)\.(?P<exercise>.*)\.(?P<case>xml)$'
 
 	def cases_reader( self, path ):

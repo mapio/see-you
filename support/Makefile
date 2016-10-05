@@ -1,15 +1,16 @@
 SHELL = bash
 
 CSOURCES = $(wildcard *.c)
+BSOURCES = $(wildcard *.sh)
 JSOURCES = $(wildcard *.java)
 
-ifeq ($(strip $(CSOURCES)),)
+ifneq ($(strip $(JSOURCES)),)
 	jcode = 1
 	SOURCES = $(JSOURCES)
 	OBJECTS = $(SOURCES:.java=.class)
 	JAVAC = javac
 	compile = $(JAVAC) -encoding utf8 $<
-else
+else ifneq ($(strip $(CSOURCES)),)
 	ccode = 1
 	SOURCES = $(CSOURCES)
 	OBJECTS = $(SOURCES:.c=.o)
@@ -17,6 +18,12 @@ else
 	CC = gcc
 	compile = $(CC) $(CFLAGS) -c -o $@ $<
 	link = $(CC) $^ -o $@
+else ifneq ($(strip $(BSOURCES)),)
+	bcode = 1
+	SOURCES = $(BSOURCES)
+	OBJECTS = $(BSOURCES)
+	compile =
+	link =
 endif
 
 INPUTS = $(wildcard input-*.txt)
@@ -102,7 +109,7 @@ ifdef ccode
 		$(reset);\
 		exit 1;\
 	fi
-else
+else ifdef jcode
 	@rm -f .main-$@ $@
 	@grep -HE 'public\s+static\s+void\s+main' *.java | cut -d : -f 1 | cut -d . -f 1 > .main-$@
 	@if [ $$(wc -l < .main-$@) -eq 0 ]; then\
@@ -119,6 +126,28 @@ else
 	fi
 	@bash -c "echo -e '#!/bin/sh\nexec java $$(cat .main-$@) \"\$$@\"' > $@"
 	@chmod u+x $@
+else ifdef bcode
+	@rm -f .main-$@ $@
+	@ls | grep .sh > .main-$@
+	@if [ $$(wc -l < .main-$@) -eq 0 ]; then\
+		$(blue);\
+		echo error: no .sh file found 1>&2;\
+		$(reset);\
+		exit 1;\
+	fi
+	@if [ $$(wc -l < .main-$@) -gt 1 ]; then\
+		$(blue);\
+		echo error: more than one .sh file found 1>&2;\
+		$(reset);\
+		exit 1;\
+	fi
+	@bash -c "echo -e '#!/bin/sh\nexec bash $$(cat .main-$@) \"\$$@\"' > $@"
+	@chmod u+x $@
+else
+	@$(blue);\
+	echo error: no .c, .java, or .sh file found 1>&2;\
+	$(reset);\
+	exit 1
 endif
 
 .PRECIOUS: actual-%.txt

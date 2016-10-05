@@ -114,8 +114,28 @@ echo -e 'public class Test { public static void main( String[] args ) {} }' > Te
 echo -e 'public class Tost { public static void main( String[] args ) {} }' > Tost.java
 assert "Too many main found" "" "" "more than one main method found" F
 
+
+# Shell
+
+echo -e "\033[32m*** Shell targets...\033[0m"
+
 rm -f *.java
-assert "No main found" "" "" "no main method found" F
+
+echo -e 'echo -n "AB"' > test.sh
+assert "No error" "" "" "" NF
+assert "Truncate" "max_output=1" "< AB#> A#" ""
+
+echo -e '' > test.sh
+assert "Diff" "" "< AB#"
+
+echo -e 'while true; do true; done' > test.sh
+assert "Timeout" "" "" "execution timeout"
 
 
-#chmod -R u+rwx $tempdir; rm -rf $tempdir
+
+echo -e "\033[32m*** No targets...\033[0m"
+
+rm test.sh
+assert "No target" "" "" "no .c, .java, or .sh file found" F
+
+chmod -R u+rwx $tempdir; rm -rf $tempdir
