@@ -124,9 +124,12 @@ class TestRunner( object ):
 	def getres( self, exercise, case_num ):
 		def _r( exercise, path, case_num ):
 			fpath = join( self.temp_dir, exercise, path.format( case_num ) )
-			with open( fpath ) as f:
-				data = unicode( f.read(), errors = 'replace' )
-				return data[ : MAX_RESULT_LENGTH ]
+			try:
+				with open( fpath ) as f:
+					data = unicode( f.read(), errors = 'replace' )
+					return data[ : MAX_RESULT_LENGTH ]
+			except IOError:
+				return None
 		stderr = _r( exercise, '.errors-{0}', case_num )
 		if stderr:
 			actual = diffs = None
