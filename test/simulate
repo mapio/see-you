@@ -149,7 +149,7 @@ consegna
 
 echocol "Teacher side"
 
-assert "Events" <(cut -d ' ' -f3- /tmp/cu_test/uploads/EVENTS.log) <(cat <<EOF
+assert "Events" <(cut -d ' ' -f3- /tmp/cu_test/uploads/EVENTS-*.log) <(cat <<EOF
 Start
 Signed: 123@127.0.0.1
 Download: 123@127.0.0.1
