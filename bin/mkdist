@@ -23,7 +23,7 @@ find $tempdir/dist -name \*.py -exec rm {} \;
 echocol "Preparing zip file"
 
 ( cd $tempdir/dist; zip -9r ../cu.zip . )
-echo '#!/usr/bin/env python' > $(pwd)/bin/cu
+echo '#!/usr/bin/env python2' > $(pwd)/bin/cu
 cat $tempdir/cu.zip >> $(pwd)/bin/cu
 chmod u+rx $(pwd)/bin/cu
 
