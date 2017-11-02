@@ -3,16 +3,11 @@
 echocol() { echo -e "\033[32m*** $@...\033[0m"; }
 
 if [ ! -r ./bin/tm ]; then
-	echocol "mkdist tm"
-	curdir=$(pwd)
-	tempdir=$(mktemp -d /tmp/cu-XXXXXXXXX) || exit 1
-	cd $tempdir
-	git clone https://github.com/mapio/tristo-mietitore.git >/dev/null 2>&1
-	cd tristo-mietitore
-	./bin/mkdist
-	mv ./bin/tm $curdir/bin/
-	cd $curdir
-	rm -rf $tempdir
+    last_release_url=$(curl -sLo /dev/null -w '%{url_effective}' "https://github.com/scythe-suite/tristo-mietitore/releases/latest")
+    version="${last_release_url##*/}"
+	echocol "getting tm $version:"
+    curl -#Lo ./bin/tm "https://github.com/scythe-suite/tristo-mietitore/releases/download/$version/tm"
+    chmod u+x ./bin/tm
 fi
 
 echocol mkdist
